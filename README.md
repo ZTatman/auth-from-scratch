@@ -79,13 +79,15 @@ This project demonstrates how to build a complete authentication system without 
 1. **Clone the repository**
 
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/ZTatman/auth-from-scratch.git
    cd auth-from-scratch
    ```
 
 2. **Install dependencies**
 
    ```bash
+   cd client && npm install
+   cd server && npm install
    npm install
    ```
 
@@ -100,7 +102,7 @@ This project demonstrates how to build a complete authentication system without 
    ```bash
    cd server
    npx prisma migrate deploy
-   cd ..
+   cd ../
    ```
 
 5. **Start the development servers**
