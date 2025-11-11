@@ -1,0 +1,16 @@
+{
+  "name": "auth-login-page",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "concurrently -n \"server,client\" -c \"green,yellow\" \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "build": "concurrently -n \"server,client\" -c \"green,yellow\" \"cd server && npm run build\" \"cd client && npm run build\""
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.15",
+    "tailwindcss": "^4.1.15"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

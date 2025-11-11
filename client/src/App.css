@@ -1,0 +1,31 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.activity-log-entry {
+  animation: slideInFade 0.4s ease-out;
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.activity-log-entry-exit {
+  animation: slideOutLeft 0.3s ease-in forwards;
+}
