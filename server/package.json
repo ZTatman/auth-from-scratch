@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.ts",
+    "start": "tsx server.ts",
     "dev": "tsx watch server.ts",
+    "build": "tsc",
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prisma:studio": "prisma studio"
   },
   "type": "module",
   "keywords": [],

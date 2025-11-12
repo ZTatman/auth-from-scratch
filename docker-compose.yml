@@ -11,5 +11,48 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d auth_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: auth_server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://dev:devpass@postgres:5432/auth_db
+      - JWT_SECRET=your-secret-jwt-key-change-this-in-production
+      - PORT=3001
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - /app/generated
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: auth_client
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    environment:
+      - VITE_API_URL=http://server:3001
+
 volumes:
   postgres_data:

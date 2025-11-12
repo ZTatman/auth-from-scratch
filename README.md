@@ -74,7 +74,23 @@ This project demonstrates how to build a complete authentication system without 
 - Docker and Docker Compose installed
 - npm or yarn package manager
 
-### Installation
+### Option 1: Docker Compose (Recommended)
+
+Run the entire application stack with a single command:
+
+```bash
+docker-compose up --build
+```
+
+This will start:
+
+- PostgreSQL database on `http://localhost:5432`
+- Backend API on `http://localhost:3001`
+- Frontend on `http://localhost:3000`
+
+For detailed Docker instructions, see [DOCKER_SETUP.md](./DOCKER_SETUP.md).
+
+### Option 2: Local Development
 
 1. **Clone the repository**
 
@@ -87,34 +103,44 @@ This project demonstrates how to build a complete authentication system without 
 
    ```bash
    cd client && npm install
-   cd server && npm install
-   npm install
+   cd ../server && npm install
+   cd ..
    ```
 
 3. **Start PostgreSQL database**
 
    ```bash
-   docker-compose up -d
+   docker-compose up postgres -d
    ```
 
-4. **Run database migrations**
+4. **Set up environment variables**
+
+   Create a `.env` file in the `server/` directory:
+
+   ```env
+   DATABASE_URL=postgresql://dev:devpass@localhost:5432/auth_db
+   JWT_SECRET=your-secret-jwt-key-change-this-in-production
+   PORT=3001
+   ```
+
+5. **Run database migrations**
 
    ```bash
    cd server
    npx prisma migrate deploy
-   cd ../
+   cd ..
    ```
 
-5. **Start the development servers**
+6. **Start the development servers**
 
    ```bash
-   npm run dev
+   npm start
    ```
 
    This will start:
 
-   - Frontend on `http://localhost:5173`
-   - Backend on `http://localhost:3000`
+   - Frontend on `http://localhost:3000`
+   - Backend on `http://localhost:3001`
 
 ## Usage
 
