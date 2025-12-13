@@ -1,14 +1,14 @@
-interface TextBlockProps {
-  label: string;
-  value?: string;
-  variant?: "success" | "error" | "normal";
-}
-
 const variantClassMap = {
   success: "text-green-500",
   error: "text-red-500",
   normal: "text-gray-500",
 };
+
+interface TextBlockProps {
+  label: string;
+  value?: string;
+  variant?: "success" | "error" | "normal";
+}
 
 export function TextBlock({
   label,

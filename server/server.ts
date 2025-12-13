@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express, { Request, Response, Application } from "express";
-import crypto from "node:crypto";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt, { Secret } from "jsonwebtoken";
@@ -14,15 +13,6 @@ const JWT_SECRET = process.env.JWT_SECRET as Secret;
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-interface User {
-  id: string;
-  _createdAt: string;
-  username: string;
-  password: string;
-}
-
-const users: User[] = [];
 
 function validatePassword(password: string): string {
   if (password.length < 8) {
@@ -122,7 +112,7 @@ app.post("/login", async (req: Request, res: Response): Promise<void> => {
       // This prevents attackers from determining if a user exists based on response time
       await bcrypt.compare(
         password,
-        "$2a$10$dummy.hash.to.prevent.timing.attacks"
+        "$2a$10$dummy.hash.to.prevent.timing.attacks",
       );
     }
 
@@ -140,7 +130,7 @@ app.post("/login", async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     // 5. Return response
@@ -161,7 +151,7 @@ app.post("/login", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-app.get("/", (req: Request, res: Response): void => {
+app.get("/", (_req: Request, res: Response): void => {
   res.send("hello world");
 });
 
