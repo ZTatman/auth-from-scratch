@@ -84,12 +84,12 @@ export function AuthForm({
   const isResetFormEnabled =
     !isLoginMode &&
     ["username", "password", "confirmPassword"].some(
-      (field) => formData[field as keyof AuthFormData]
+      (field) => formData[field as keyof AuthFormData],
     );
 
   return (
-    <div className="bg-white p-8 rounded-lg border border-gray-200 shadow-md w-full max-w-md">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+    <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-md">
+      <h1 className="mb-8 text-center text-3xl font-bold text-gray-800">
         Example Auth Login Page
       </h1>
       <div className="mb-6 flex justify-center">
@@ -124,7 +124,7 @@ export function AuthForm({
         >
           <button
             type="button"
-            className="absolute right-3 top-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            className="absolute top-1/2 right-3 text-gray-500 transition-colors duration-200 hover:text-gray-700"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "Hide" : "Show"}
@@ -148,11 +148,11 @@ export function AuthForm({
             onCredentialsGenerated={handleCredentialsGenerated}
           />
         )}
-        <div className="flex justify-between items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
           <button
             disabled={isDisabled}
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-md bg-blue-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoginMode ? "Login" : "Register"}
           </button>
@@ -161,7 +161,7 @@ export function AuthForm({
               type="button"
               disabled={!isResetFormEnabled}
               onClick={() => resetFormData()}
-              className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-md bg-gray-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Reset Form
             </button>
@@ -203,7 +203,7 @@ function InputField({
     <div className={className}>
       <label
         htmlFor={name}
-        className="block text-sm text-left font-medium text-gray-700 mb-1"
+        className="mb-1 block text-left text-sm font-medium text-gray-700"
       >
         {label}
       </label>
@@ -217,7 +217,7 @@ function InputField({
         required={required}
         minLength={minLength}
         autoComplete={autoComplete || "off"}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       {children}
     </div>

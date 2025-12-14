@@ -22,7 +22,7 @@ export function CopyButton({ textToCopy, className = "" }: CopyButtonProps) {
     <button
       type="button"
       onClick={handleCopy}
-      className={`shrink-0 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors duration-200 ${className}`}
+      className={`shrink-0 rounded p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-200 hover:text-gray-900 ${className}`}
       title={copied ? "Copied!" : "Copy to clipboard"}
     >
       {copied ? (

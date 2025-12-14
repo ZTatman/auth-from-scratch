@@ -22,7 +22,7 @@ import "./App.css";
 // Helper function to convert API response to ActivityLogEntry
 function createLogEntry(
   result: LoginResponseResult | RegisterResponseResult,
-  type: "login" | "register"
+  type: "login" | "register",
 ): ActivityLogEntry {
   return {
     timestamp: new Date().toISOString(),
@@ -49,7 +49,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pt-20">
+    <div className="flex min-h-screen flex-col items-center justify-start pt-20">
       <AuthForm
         onLogin={handleLogin}
         onRegister={handleRegister}

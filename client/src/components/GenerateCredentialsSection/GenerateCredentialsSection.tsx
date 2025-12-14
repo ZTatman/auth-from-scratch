@@ -44,7 +44,7 @@ export function GenerateCredentialsSection({
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     const password = Array.from(
       { length: 12 },
-      () => chars[Math.floor(Math.random() * chars.length)]
+      () => chars[Math.floor(Math.random() * chars.length)],
     ).join("");
 
     setGeneratedCredentials({ username, password });
@@ -56,19 +56,19 @@ export function GenerateCredentialsSection({
       <button
         type="button"
         onClick={generateRandomCredentials}
-        className="text-blue-500 hover:text-blue-700 underline text-sm transition-colors duration-200"
+        className="text-sm text-blue-500 underline transition-colors duration-200 hover:text-blue-700"
       >
         Generate random credentials
       </button>
       {generatedCredentials && (
-        <div className="bg-gray-50 border border-gray-200 rounded-md p-3 text-sm flex justify-between items-start gap-3">
+        <div className="flex items-start justify-between gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm">
           <div className="flex-1">
-            <p className="text-gray-700 mb-1">
-              <span className="font-medium">Username:</span>{" "}
+            <p className="mb-1 text-gray-700">
+              <span className="font-medium">Username:</span>&nbsp;
               {generatedCredentials.username}
             </p>
             <p className="text-gray-700">
-              <span className="font-medium">Password:</span>{" "}
+              <span className="font-medium">Password:</span>&nbsp;
               {generatedCredentials.password}
             </p>
           </div>

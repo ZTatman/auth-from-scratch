@@ -6,7 +6,7 @@ import type {
 } from "../types";
 
 export const registerUser = async (
-  formData: RegisterForm
+  formData: RegisterForm,
 ): Promise<RegisterResponseResult> => {
   try {
     const response = await fetch("/api/register", {
@@ -24,14 +24,14 @@ export const registerUser = async (
     // Return error in the same format as server
     return {
       success: false,
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
+      message:
+        error instanceof Error ? error.message : "Unknown error occurred",
     };
   }
 };
 
 export const loginUser = async (
-  formData: LoginForm
+  formData: LoginForm,
 ): Promise<LoginResponseResult> => {
   try {
     const response = await fetch("/api/login", {

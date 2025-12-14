@@ -9,8 +9,9 @@ interface ActivityLogProps {
 
 export function ActivityLog({ entries, onClear }: ActivityLogProps) {
   const [isClearing, setIsClearing] = useState(false);
+
   const sortedEntries = entries.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
 
   const handleClear = () => {
@@ -22,15 +23,15 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
   };
 
   return (
-    <div className="w-full max-w-md my-6">
-      <hr className="border-t border-gray-300 mb-4" />
-      <div className="flex justify-between items-center mb-2">
+    <div className="my-6 w-full max-w-md">
+      <hr className="mb-4 border-t border-gray-300" />
+      <div className="mb-2 flex items-center justify-between">
         <span className="text-lg font-semibold text-gray-700">
           Activity Log
         </span>
         <button
           onClick={handleClear}
-          className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-150"
+          className="rounded-full p-2 transition-colors duration-150 hover:bg-gray-200"
           aria-label="Clear activity log"
           title="Clear activity log"
         >
@@ -52,7 +53,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
       </div>
       <div className="space-y-3">
         {sortedEntries.length === 0 ? (
-          <div className="text-gray-400 text-sm text-center p-8">
+          <div className="p-8 text-center text-sm text-gray-400">
             No activity yet
           </div>
         ) : (

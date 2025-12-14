@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express, { Request, Response, Application } from "express";
-import crypto from "node:crypto";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt, { Secret } from "jsonwebtoken";
@@ -14,15 +13,6 @@ const JWT_SECRET = process.env.JWT_SECRET as Secret;
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-interface User {
-  id: string;
-  _createdAt: string;
-  username: string;
-  password: string;
-}
-
-const users: User[] = [];
 
 function validatePassword(password: string): string {
   if (password.length < 8) {
@@ -84,7 +74,7 @@ app.post("/register", async (req: Request, res: Response): Promise<void> => {
     // };
     // users.push(newUser);
     const newUser = await userRepository.create(username, hashedPassword);
-    console.log(":: new user created!: ", newUser);
+
     // 5. Return response
     res.status(201).json({
       success: true,
@@ -96,8 +86,7 @@ app.post("/register", async (req: Request, res: Response): Promise<void> => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message:
-        error instanceof Error ? error.message : "Unknown error occurred",
+      message: error instanceof Error ? error.message : "Unknown error occurred",
     });
   }
 });
@@ -120,10 +109,7 @@ app.post("/login", async (req: Request, res: Response): Promise<void> => {
     } else {
       // Perform a dummy bcrypt comparison with a fake hash to maintain consistent timing
       // This prevents attackers from determining if a user exists based on response time
-      await bcrypt.compare(
-        password,
-        "$2a$10$dummy.hash.to.prevent.timing.attacks"
-      );
+      await bcrypt.compare(password, "$2a$10$dummy.hash.to.prevent.timing.attacks");
     }
 
     // 3. Return same error message for both invalid user and invalid password
@@ -137,11 +123,7 @@ app.post("/login", async (req: Request, res: Response): Promise<void> => {
     }
 
     // 4. Create JSON Web Token
-    const token = jwt.sign(
-      { userId: user.id, username: user.username },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "1h" });
 
     // 5. Return response
     res.status(200).json({
@@ -155,13 +137,12 @@ app.post("/login", async (req: Request, res: Response): Promise<void> => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message:
-        error instanceof Error ? error.message : "Unknown error occurred",
+      message: error instanceof Error ? error.message : "Unknown error occurred",
     });
   }
 });
 
-app.get("/", (req: Request, res: Response): void => {
+app.get("/", (_req: Request, res: Response): void => {
   res.send("hello world");
 });
 

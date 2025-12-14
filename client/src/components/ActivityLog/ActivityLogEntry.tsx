@@ -9,12 +9,12 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
   const actionTitle = entry.type === "register" ? "Register" : "Login";
   return (
     <div
-      className={`activity-log-entry rounded-lg px-4 py-3 shadow-md border border-gray-200 flex items-start gap-3 w-full text-left`}
+      className={`activity-log-entry flex w-full items-start gap-3 rounded-lg border border-gray-200 px-4 py-3 text-left shadow-md`}
     >
-      <div className="flex-1 min-w-0 text-left">
-        <div className="flex items-center justify-between gap-2 mb-1">
+      <div className="min-w-0 flex-1 text-left">
+        <div className="mb-1 flex items-center justify-between gap-2">
           <div className="text-sm font-bold text-gray-800">{actionTitle}</div>
-          <div className="text-xs text-gray-500 shrink-0">
+          <div className="shrink-0 text-xs text-gray-500">
             {new Date(entry.timestamp).toLocaleString("en-US", {
               year: "numeric",
               month: "short",
@@ -25,7 +25,7 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
             })}
           </div>
         </div>
-        <div className="text-xs text-gray-600 wrap-break-word text-left">
+        <div className="text-left text-xs wrap-break-word text-gray-600">
           <TextBlock label="Message" value={entry.message} />
           {entry.user && (
             <TextBlock label="Username" value={entry.user.username} />
@@ -40,7 +40,7 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
           {entry.token && <TextBlock label="Token" value={entry.token} />}
         </div>
       </div>
-      <div className="shrink-0 mt-0.5">
+      <div className="mt-0.5 shrink-0">
         {entry.status === "success" ? (
           <svg
             className="h-5 w-5 text-green-500"
