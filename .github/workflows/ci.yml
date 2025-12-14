@@ -64,14 +64,12 @@ jobs:
       - name: Install client dependencies
         run: cd client && npm ci
 
-      - name: Generate Prisma client
-        run: cd server && npx prisma generate
-
       - name: Build client
         run: cd client && npm run build
 
       - name: Install server dependencies
         run: cd server && npm ci
-
+      - name: Generate Prisma client
+        run: cd server && npx prisma generate
       - name: Build server
         run: cd server && npm run build
