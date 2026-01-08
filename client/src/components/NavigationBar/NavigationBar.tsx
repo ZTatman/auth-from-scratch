@@ -1,0 +1,122 @@
+import { useMemo } from "react";
+import { useUser } from "../../hooks";
+
+export function NavigationBar() {
+  const { user, isAuthenticated, logout } = useUser();
+
+  return (
+    <div className="sticky top-0 z-50 w-full bg-white p-4 shadow-md">
+      <div className="container mx-auto flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Auth From Scratch</h1>
+
+        {isAuthenticated && user && (
+          <div className="relative">
+            {/* The Trigger Button - anchored */}
+            <button
+              popoverTarget="user-menu"
+              className="user-menu-trigger flex items-center gap-2 rounded-full transition-opacity hover:opacity-80 focus:outline-none"
+            >
+              <Avatar username={user.username} />
+              <span className="text-sm font-medium text-gray-700">
+                {user.username}
+              </span>
+              <svg
+                className="h-4 w-4 text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {/* The Popover Menu - positioned relative to the anchor */}
+            <div
+              id="user-menu"
+              popover="auto"
+              className="user-menu-popover w-48 rounded-md border border-gray-100 bg-white shadow-lg"
+            >
+              <div className="border-b border-gray-100 px-4 py-2 text-xs text-gray-500">
+                Signed in as <br />
+                <span className="font-bold text-gray-900">{user.username}</span>
+              </div>
+              <button
+                onClick={() => logout()}
+                className="flex w-full items-center px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+              >
+                <svg
+                  className="mr-3 h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                Sign out
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* CSS Anchor Positioning for the popover */}
+      <style>{`
+        .user-menu-trigger {
+          anchor-name: --user-menu-anchor;
+        }
+        .user-menu-popover {
+          position-anchor: --user-menu-anchor;
+          inset: unset;
+          top: anchor(bottom);
+          right: anchor(right);
+          margin-top: 0.5rem;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+interface AvatarProps {
+  username: string;
+}
+
+function Avatar({ username }: AvatarProps) {
+  // Derive a consistent color from the username (same user = same color)
+  const color = useMemo(() => {
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return (hash & 0x00ffffff).toString(16).padStart(6, "0");
+  }, [username]);
+
+  // Get initials from username
+  const initials = useMemo(
+    () =>
+      username
+        .split(" ")
+        .map((name) => name.charAt(0).toUpperCase())
+        .join("")
+        .slice(0, 2),
+    [username],
+  );
+
+  return (
+    <div
+      className="flex h-10 w-10 items-center justify-center rounded-full shadow-inner"
+      style={{ backgroundColor: `#${color}` }}
+    >
+      <span className="font-bold text-white">{initials}</span>
+    </div>
+  );
+}
