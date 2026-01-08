@@ -23,7 +23,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
   };
 
   return (
-    <div className="my-6 w-full max-w-md">
+    <div className="w-full max-w-md">
       <hr className="mb-4 border-t border-gray-300" />
       <div className="mb-2 flex items-center justify-between">
         <span className="text-lg font-semibold text-gray-700">

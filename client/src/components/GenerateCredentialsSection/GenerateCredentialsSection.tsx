@@ -5,47 +5,22 @@ interface GenerateCredentialsSectionProps {
   onCredentialsGenerated: (username: string, password: string) => void;
 }
 
-export function GenerateCredentialsSection({
-  onCredentialsGenerated,
-}: GenerateCredentialsSectionProps) {
+export function GenerateCredentialsSection({ onCredentialsGenerated }: GenerateCredentialsSectionProps) {
   const [generatedCredentials, setGeneratedCredentials] = useState<{
     username: string;
     password: string;
   } | null>(null);
 
   const generateRandomCredentials = () => {
-    const adjectives = [
-      "happy",
-      "clever",
-      "bright",
-      "swift",
-      "bold",
-      "calm",
-      "wise",
-      "brave",
-    ];
-    const nouns = [
-      "panda",
-      "tiger",
-      "eagle",
-      "dolphin",
-      "falcon",
-      "wolf",
-      "fox",
-      "bear",
-    ];
-    const randomAdjective =
-      adjectives[Math.floor(Math.random() * adjectives.length)];
+    const adjectives = ["Happy", "Clever", "Bright", "Swift", "Bold", "Calm", "Wise", "Brave"];
+    const nouns = ["Panda", "Tiger", "Eagle", "Dolphin", "Falcon", "Wolf", "Fox", "Bear"];
+    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
     const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
     const randomNumber = Math.floor(Math.random() * 1000);
     const username = `${randomAdjective}${randomNoun}${randomNumber}`;
 
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    const password = Array.from(
-      { length: 12 },
-      () => chars[Math.floor(Math.random() * chars.length)],
-    ).join("");
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    const password = Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 
     setGeneratedCredentials({ username, password });
     onCredentialsGenerated(username, password);
