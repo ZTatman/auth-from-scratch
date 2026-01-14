@@ -12,14 +12,12 @@
     "build": "concurrently -n \"server,client\" -c \"blue,green\" \"cd server && npm run build\" \"cd client && npm run build\"",
     "format": "cd server && npm run format && cd client && npm run format"
   },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.15",
-    "tailwindcss": "^4.1.15"
-  },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.15",
     "concurrently": "^9.2.1",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "tailwindcss": "^4.1.15",
     "typescript": "~5.9.3"
   }
 }
