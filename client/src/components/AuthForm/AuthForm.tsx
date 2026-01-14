@@ -37,7 +37,7 @@ export function AuthForm({
     }));
   };
 
-  const resetFormData = () => {
+  const clearFormData = () => {
     setFormData(initialFormData);
   };
 
@@ -56,12 +56,11 @@ export function AuthForm({
     if (isLoginMode) {
       const { username, password } = formData;
       onLogin({ username, password });
-      resetFormData();
+      clearFormData();
     } else {
       const { username, password, confirmPassword } = formData;
       if (password === confirmPassword) {
         onRegister({ username, password, confirmPassword });
-        resetFormData();
       } else {
         setActivityLog((prev) => [
           ...prev,
@@ -118,9 +117,9 @@ export function AuthForm({
           placeholder="Enter your password"
           value={formData.password}
           onChange={handleChange}
-          required
           minLength={6}
           autoComplete="new-password"
+          required
         >
           <button
             type="button"
@@ -138,9 +137,9 @@ export function AuthForm({
             placeholder="Confirm your password"
             value={formData.confirmPassword || ""}
             onChange={handleChange}
-            required
             minLength={6}
             autoComplete="new-password"
+            required
           />
         )}
         {!isLoginMode && (
@@ -160,10 +159,10 @@ export function AuthForm({
             <button
               type="button"
               disabled={!isResetFormEnabled}
-              onClick={() => resetFormData()}
+              onClick={() => clearFormData()}
               className="w-full rounded-md bg-gray-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Reset Form
+              Clear Form
             </button>
           )}
         </div>

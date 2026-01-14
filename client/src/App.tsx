@@ -1,13 +1,8 @@
 import { useState } from "react";
 
 // Types
-import type {
-  ActivityLogEntry,
-  LoginForm,
-  LoginResponseResult,
-  RegisterForm,
-  RegisterResponseResult,
-} from "./types";
+import type { LoginResponse, RegisterResponse } from "@app/shared-types";
+import type { ActivityLogEntry, LoginForm, RegisterForm } from "./types";
 
 // API / Hooks
 import { loginUser, registerUser } from "./api";
@@ -24,18 +19,29 @@ import "./App.css";
 
 // Helper function to convert API response to ActivityLogEntry
 function createLogEntry(
-  result: LoginResponseResult | RegisterResponseResult,
+  result: LoginResponse | RegisterResponse,
   type: "login" | "register",
 ): ActivityLogEntry {
-  return {
-    timestamp: new Date().toISOString(),
-    status: result.success ? "success" : "error",
-    type,
-    message: result.message,
-    ...(result.success && result.user && { user: result.user }),
-    ...(result.requirement && { requirement: result.requirement }),
-    ...("token" in result && result.token && { token: result.token }),
-  };
+  if (result.success) {
+    // TypeScript automatically narrows: result is SuccessResponse<AuthData>
+    return {
+      timestamp: new Date().toISOString(),
+      status: "success",
+      type,
+      message: result.message,
+      user: result.data.user,
+      ...(result.data.token && { token: result.data.token }),
+    };
+  } else {
+    // TypeScript automatically narrows: result is ErrorResponse
+    return {
+      timestamp: new Date().toISOString(),
+      status: "error",
+      type,
+      message: result.message,
+      ...(result.requirement && { requirement: result.requirement }),
+    };
+  }
 }
 
 function AppContent() {
@@ -45,8 +51,9 @@ function AppContent() {
   const handleLogin = async (data: LoginForm) => {
     const result = await loginUser(data);
     // Only update context if login was successful and we have user + token
-    if (result.success && result.user && result.token) {
-      login(result.user, result.token);
+    if (result.success && result.data.token) {
+      // TypeScript automatically narrows: result.data exists and has user
+      login(result.data.user, result.data.token);
     }
     // add to activity log
     setActivityLog((prev) => [...prev, createLogEntry(result, "login")]);

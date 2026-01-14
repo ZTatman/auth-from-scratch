@@ -1,13 +1,13 @@
 import type {
-  LoginForm,
-  LoginResponseResult,
-  RegisterForm,
-  RegisterResponseResult,
-} from "../types";
+  LoginResponse,
+  RegisterResponse,
+  ErrorResponse,
+} from "@app/shared-types";
+import type { LoginForm, RegisterForm } from "../types";
 
 export const registerUser = async (
   formData: RegisterForm,
-): Promise<RegisterResponseResult> => {
+): Promise<RegisterResponse> => {
   try {
     const response = await fetch("/api/register", {
       method: "POST",
@@ -17,22 +17,23 @@ export const registerUser = async (
       body: JSON.stringify(formData),
     });
 
-    const result: RegisterResponseResult = await response.json();
+    const result: RegisterResponse = await response.json();
     return result;
   } catch (error) {
     console.error(error);
     // Return error in the same format as server
-    return {
+    const errorResponse: ErrorResponse = {
       success: false,
       message:
         error instanceof Error ? error.message : "Unknown error occurred",
     };
+    return errorResponse;
   }
 };
 
 export const loginUser = async (
   formData: LoginForm,
-): Promise<LoginResponseResult> => {
+): Promise<LoginResponse> => {
   try {
     const response = await fetch("/api/login", {
       method: "POST",
@@ -42,15 +43,16 @@ export const loginUser = async (
       body: JSON.stringify(formData),
     });
 
-    const result: LoginResponseResult = await response.json();
+    const result: LoginResponse = await response.json();
     return result;
   } catch (error) {
     console.error(error);
     // Return error in the same format as server
-    return {
+    const errorResponse: ErrorResponse = {
       success: false,
       message:
         error instanceof Error ? error.message : "Unknown error occurred",
     };
+    return errorResponse;
   }
 };

@@ -1,4 +1,4 @@
-import type { User } from "../types";
+import type { SafeUser } from "@app/shared-types";
 
 export function saveToken(auth_token: string): void {
   localStorage.setItem("auth_token", auth_token);
@@ -21,7 +21,7 @@ export function removeToken(): void {
   }
 }
 
-export function getUser(): User | null {
+export function getUser(): SafeUser | null {
   try {
     const stored = localStorage.getItem("auth_user");
     return stored ? JSON.parse(stored) : null;
@@ -31,7 +31,7 @@ export function getUser(): User | null {
   }
 }
 
-export function saveUser(user: User): void {
+export function saveUser(user: SafeUser): void {
   localStorage.setItem("auth_user", JSON.stringify(user));
 }
 

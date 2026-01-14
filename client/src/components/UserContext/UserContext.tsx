@@ -1,16 +1,16 @@
 import { useState, useEffect, createContext, type ReactNode } from "react";
-import { type User } from "../../types";
+import type { SafeUser } from "@app/shared-types";
 import * as userUtils from "../../utils/user";
 
 export type UserContextType = {
   isAuthenticated: boolean;
-  user: User | null;
+  user: SafeUser | null;
   authToken: string | null;
   role: string;
   setAuthToken: (authToken: string) => void;
-  setUser: (user: User) => void;
+  setUser: (user: SafeUser) => void;
   setRole: (role: string) => void;
-  login: (user: User, token: string) => void;
+  login: (user: SafeUser, token: string) => void;
   logout: () => void;
 };
 
@@ -21,7 +21,7 @@ export const UserContext = createContext<UserContextType | undefined>(
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string>("default");
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SafeUser | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
@@ -38,7 +38,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (user: User, authToken: string): void => {
+  const login = (user: SafeUser, authToken: string): void => {
     // update localStorage
     userUtils.saveToken(authToken);
     userUtils.saveUser(user);
