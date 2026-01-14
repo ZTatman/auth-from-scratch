@@ -1,14 +1,21 @@
 import { useState } from "react";
 import type {
   ActivityLogEntry,
-  AuthFormData,
+  AuthForm,
   LoginForm,
   RegisterForm,
 } from "../../types";
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
 import { GenerateCredentialsSection } from "../GenerateCredentialsSection/GenerateCredentialsSection";
 
-const initialFormData = {
+// Internal form state (always includes all fields)
+interface FormState {
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const initialFormData: FormState = {
   username: "",
   password: "",
   confirmPassword: "",
@@ -27,7 +34,7 @@ export function AuthForm({
 }: AuthFormProps) {
   const [isLoginMode, setIsLoginMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<AuthFormData>(initialFormData);
+  const [formData, setFormData] = useState<FormState>(initialFormData);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -80,11 +87,12 @@ export function AuthForm({
     !formData.username ||
     !formData.password ||
     (!isLoginMode && !formData.confirmPassword);
+  
   const isResetFormEnabled =
     !isLoginMode &&
-    ["username", "password", "confirmPassword"].some(
-      (field) => formData[field as keyof AuthFormData],
-    );
+    (formData.username !== "" || 
+     formData.password !== "" || 
+     formData.confirmPassword !== "");
 
   return (
     <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-md">
