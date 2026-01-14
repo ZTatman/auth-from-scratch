@@ -23,5 +23,4 @@ EXPOSE 3000
 
 # Start the development server
 # Use --host to make Vite accessible from outside the container
-CMD ["npm", "run", "dev", "--workspace", "client", "--", "--host"]
-
+CMD ["npm", "run", "dev", "--workspace=client", "--", "--host"]
