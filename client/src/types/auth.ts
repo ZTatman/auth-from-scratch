@@ -8,10 +8,11 @@ import type { SafeUser } from "@app/shared-types";
 export interface LoginForm {
   username: string;
   password: string;
+  confirmPassword?: string; // Optional for login, required for register
 }
 
 export interface RegisterForm extends LoginForm {
-  confirmPassword: string;
+  confirmPassword: string; // Required override
 }
 
 export type AuthForm = LoginForm | RegisterForm;
