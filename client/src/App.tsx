@@ -48,21 +48,20 @@ function AppContent() {
   const { login } = useUser();
   const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
 
-  const handleLogin = async (data: LoginForm) => {
+  const handleLogin = async (data: LoginForm): Promise<boolean> => {
     const result = await loginUser(data);
     // Only update context if login was successful and we have user + token
     if (result.success && result.data.token) {
       // TypeScript automatically narrows: result.data exists and has user
       login(result.data.user, result.data.token);
     }
-    // add to activity log
     setActivityLog((prev) => [...prev, createLogEntry(result, "login")]);
+    return result.success;
   };
 
-  const handleRegister = async (data: RegisterForm) => {
+  const handleRegister = async (data: RegisterForm): Promise<void> => {
     const result = await registerUser(data);
     // Note: Register doesn't return a token, so we don't auto-login after registration
-    // add to activity log
     setActivityLog((prev) => [...prev, createLogEntry(result, "register")]);
   };
 

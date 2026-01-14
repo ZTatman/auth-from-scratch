@@ -1,10 +1,5 @@
 import { useState } from "react";
-import type {
-  ActivityLogEntry,
-  AuthForm,
-  LoginForm,
-  RegisterForm,
-} from "../../types";
+import type { ActivityLogEntry, LoginForm, RegisterForm } from "../../types";
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
 import { GenerateCredentialsSection } from "../GenerateCredentialsSection/GenerateCredentialsSection";
 
@@ -22,8 +17,8 @@ const initialFormData: FormState = {
 };
 
 interface AuthFormProps {
-  onLogin: (data: LoginForm) => void;
-  onRegister: (data: RegisterForm) => void;
+  onLogin: (data: LoginForm) => Promise<boolean>;
+  onRegister: (data: RegisterForm) => Promise<void>;
   setActivityLog: React.Dispatch<React.SetStateAction<ActivityLogEntry[]>>;
 }
 
@@ -57,17 +52,21 @@ export function AuthForm({
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isLoginMode) {
       const { username, password } = formData;
-      onLogin({ username, password });
-      clearFormData();
+      const success = await onLogin({ username, password });
+      if (success) clearFormData();
     } else {
       const { username, password, confirmPassword } = formData;
       if (password === confirmPassword) {
-        onRegister({ username, password, confirmPassword });
+        await onRegister({
+          username,
+          password,
+          confirmPassword,
+        });
       } else {
         setActivityLog((prev) => [
           ...prev,
@@ -87,12 +86,12 @@ export function AuthForm({
     !formData.username ||
     !formData.password ||
     (!isLoginMode && !formData.confirmPassword);
-  
+
   const isResetFormEnabled =
     !isLoginMode &&
-    (formData.username !== "" || 
-     formData.password !== "" || 
-     formData.confirmPassword !== "");
+    (formData.username !== "" ||
+      formData.password !== "" ||
+      formData.confirmPassword !== "");
 
   return (
     <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-md">

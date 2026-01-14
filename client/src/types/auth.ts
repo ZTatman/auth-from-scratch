@@ -14,8 +14,6 @@ export interface RegisterForm extends LoginForm {
   confirmPassword: string;
 }
 
-export type AuthForm = LoginForm | RegisterForm;
-
 // Activity log types
 type ActivityLogStatus = "success" | "error";
 type ActivityLogType = "register" | "login";

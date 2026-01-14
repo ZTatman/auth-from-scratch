@@ -72,9 +72,6 @@ app.post(
         return;
       }
 
-      // 1. Find user by username
-      const user = await userRepository.findByUsername(username);
-
       // 1. Check password validation requirements
       const validationMessage = validatePassword(password);
       if (validationMessage) {
