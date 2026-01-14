@@ -10,12 +10,16 @@ import type {
   LoginResponse,
   SafeUser,
 } from "@app/shared-types";
-import type { JwtPayload, RegisterRequest, LoginRequest } from "./types";
+import type { JwtPayload, AuthCredentials } from "./types";
 
 const app: Application = express();
 
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET as Secret;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 // Middleware
 app.use(cors());
@@ -58,7 +62,18 @@ app.post(
   "/register",
   async (req: Request, res: Response<RegisterResponse>): Promise<void> => {
     try {
-      const { username, password } = req.body as RegisterRequest;
+      const { username, password } = req.body as AuthCredentials;
+
+      if (!username || !password) {
+        res.status(400).json({
+          success: false,
+          message: "Username and password are required",
+        });
+        return;
+      }
+
+      // 1. Find user by username
+      const user = await userRepository.findByUsername(username);
 
       // 1. Check password validation requirements
       const validationMessage = validatePassword(password);
@@ -111,7 +126,15 @@ app.post(
   "/login",
   async (req: Request, res: Response<LoginResponse>): Promise<void> => {
     try {
-      const { username, password } = req.body as LoginRequest;
+      const { username, password } = req.body as AuthCredentials;
+
+      if (!username || !password) {
+        res.status(400).json({
+          success: false,
+          message: "Username and password are required.",
+        });
+        return;
+      }
 
       // 1. Find user by username
       const user = await userRepository.findByUsername(username);
@@ -125,7 +148,7 @@ app.post(
         // Perform a dummy bcrypt comparison to maintain consistent timing
         await bcrypt.compare(
           password,
-          "$2a$10$dummy.hash.to.prevent.timing.attacks",
+          "$2a$10$XXXXXXXXXXXXXXXXXXXXXXOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
         );
       }
 

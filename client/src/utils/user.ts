@@ -17,7 +17,7 @@ export function removeToken(): void {
   try {
     localStorage.removeItem("auth_token");
   } catch (error) {
-    console.error("Failed to get auth_token: ", error);
+    console.error("Failed to remove auth_token: ", error);
   }
 }
 

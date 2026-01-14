@@ -3,12 +3,7 @@
 // ============================================
 
 // Request bodies
-export interface RegisterRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginRequest {
+export interface AuthCredentials {
   username: string;
   password: string;
 }

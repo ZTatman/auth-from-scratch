@@ -5,22 +5,16 @@
 import type { SafeUser } from "@app/shared-types";
 
 // Form data types
-export interface AuthFormData {
-  username: string;
-  password: string;
-  confirmPassword?: string;
-}
-
 export interface LoginForm {
   username: string;
   password: string;
 }
 
-export interface RegisterForm {
-  username: string;
-  password: string;
+export interface RegisterForm extends LoginForm {
   confirmPassword: string;
 }
+
+export type AuthForm = LoginForm | RegisterForm;
 
 // Activity log types
 type ActivityLogStatus = "success" | "error";
