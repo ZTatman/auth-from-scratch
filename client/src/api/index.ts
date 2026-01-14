@@ -8,6 +8,7 @@ import type { LoginForm, RegisterForm } from "../types";
 export const registerUser = async (
   formData: RegisterForm,
 ): Promise<RegisterResponse> => {
+  // Try/catch handles NETWORK errors (DNS failure, CORS block, Request Timeout, Server Down/No Internet)
   try {
     const response = await fetch("/api/register", {
       method: "POST",
@@ -16,6 +17,19 @@ export const registerUser = async (
       },
       body: JSON.stringify(formData),
     });
+
+    // Check for HTTP Errors (Unauthorized/Forbidden 401/403, Bad Request 400, Server Error 500)
+    if (!response.ok) {
+      try {
+        const errorResponse: ErrorResponse = await response.json();
+        return errorResponse;
+      } catch {
+        return {
+          success: false,
+          message: `Request Failed: ${response.status} ${response.statusText}`,
+        };
+      }
+    }
 
     const result: RegisterResponse = await response.json();
     return result;
@@ -34,6 +48,7 @@ export const registerUser = async (
 export const loginUser = async (
   formData: LoginForm,
 ): Promise<LoginResponse> => {
+  // Try/catch handles NETWORK errors (DNS failure, CORS block, Request Timeout, Server Down/No Internet)
   try {
     const response = await fetch("/api/login", {
       method: "POST",
@@ -42,6 +57,19 @@ export const loginUser = async (
       },
       body: JSON.stringify(formData),
     });
+
+    // Check for HTTP Errors (Unauthorized/Forbidden 401/403, Bad Request 400, Server Error 500)
+    if (!response.ok) {
+      try {
+        const errorResponse: ErrorResponse = await response.json();
+        return errorResponse;
+      } catch {
+        return {
+          success: false,
+          message: `Request Failed: ${response.status} ${response.statusText}`,
+        };
+      }
+    }
 
     const result: LoginResponse = await response.json();
     return result;
