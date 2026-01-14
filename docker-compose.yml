@@ -19,8 +19,8 @@ services:
 
   server:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
     container_name: auth_server
     restart: unless-stopped
     ports:
@@ -30,24 +30,26 @@ services:
       - JWT_SECRET=your-secret-jwt-key-change-this-in-production
       - PORT=3001
     volumes:
-      - ./server:/app
+      - ./server:/app/server
+      - ./packages/shared-types:/app/packages/shared-types
       - /app/node_modules
       - /app/generated
     depends_on:
       postgres:
         condition: service_healthy
-    command: sh -c "npx prisma migrate deploy && npm run dev"
+    command: sh -c "npm exec --workspace server prisma migrate deploy && npm run dev --workspace server"
 
   client:
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: client/Dockerfile
     container_name: auth_client
     restart: unless-stopped
     ports:
       - "3000:3000"
     volumes:
-      - ./client:/app
+      - ./client:/app/client
+      - ./packages/shared-types:/app/packages/shared-types
       - /app/node_modules
     depends_on:
       - server
