@@ -2,12 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY client/package*.json ./client/
+COPY server/package*.json ./server/
+COPY packages/shared-types/package*.json ./packages/shared-types/
 
 # Copy Prisma schema before installing dependencies
 # This is needed because npm postinstall runs prisma generate
-COPY prisma ./prisma
+COPY server/prisma ./server/prisma
 
 # Install dependencies (this will run prisma generate via postinstall)
 RUN npm ci
@@ -19,5 +22,5 @@ COPY . .
 EXPOSE 3001
 
 # Start the application in development mode
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--workspace", "server"]
 

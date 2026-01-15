@@ -1,25 +1,44 @@
 import { useState } from "react";
-import type {
-  ActivityLogEntry,
-  AuthFormData,
-  LoginForm,
-  RegisterForm,
-} from "../../types";
+
+// Types
+import type { ActivityLogEntry, LoginForm, RegisterForm } from "../../types";
+
+// Components
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
 import { GenerateCredentialsSection } from "../GenerateCredentialsSection/GenerateCredentialsSection";
 
-const initialFormData = {
+// Internal form state (always includes all fields)
+interface FormState {
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const initialFormData: FormState = {
   username: "",
   password: "",
   confirmPassword: "",
 };
 
 interface AuthFormProps {
-  onLogin: (data: LoginForm) => void;
-  onRegister: (data: RegisterForm) => void;
+  onLogin: (data: LoginForm) => Promise<boolean>;
+  onRegister: (data: RegisterForm) => Promise<void>;
   setActivityLog: React.Dispatch<React.SetStateAction<ActivityLogEntry[]>>;
 }
 
+/**
+ * Renders an authentication form that supports toggling between register and login modes.
+ *
+ * The component handles user input, password visibility, generated credentials, form submission,
+ * and activity log updates. In login mode it calls `onLogin` and clears the form on success.
+ * In register mode it calls `onRegister` when passwords match; when they don't, it appends an
+ * error entry to `setActivityLog`.
+ *
+ * @param onLogin - Called with `{ username, password }` when submitting in login mode; should return `true` on successful authentication.
+ * @param onRegister - Called with `{ username, password, confirmPassword }` when submitting in register mode.
+ * @param setActivityLog - State updater for appending activity log entries (used to record registration errors).
+ * @returns The rendered authentication form element.
+ */
 export function AuthForm({
   onLogin,
   onRegister,
@@ -27,7 +46,7 @@ export function AuthForm({
 }: AuthFormProps) {
   const [isLoginMode, setIsLoginMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState<AuthFormData>(initialFormData);
+  const [formData, setFormData] = useState<FormState>(initialFormData);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -37,7 +56,7 @@ export function AuthForm({
     }));
   };
 
-  const resetFormData = () => {
+  const clearFormData = () => {
     setFormData(initialFormData);
   };
 
@@ -50,18 +69,21 @@ export function AuthForm({
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isLoginMode) {
       const { username, password } = formData;
-      onLogin({ username, password });
-      resetFormData();
+      const success = await onLogin({ username, password });
+      if (success) clearFormData();
     } else {
       const { username, password, confirmPassword } = formData;
       if (password === confirmPassword) {
-        onRegister({ username, password, confirmPassword });
-        resetFormData();
+        await onRegister({
+          username,
+          password,
+          confirmPassword,
+        });
       } else {
         setActivityLog((prev) => [
           ...prev,
@@ -81,11 +103,12 @@ export function AuthForm({
     !formData.username ||
     !formData.password ||
     (!isLoginMode && !formData.confirmPassword);
+
   const isResetFormEnabled =
     !isLoginMode &&
-    ["username", "password", "confirmPassword"].some(
-      (field) => formData[field as keyof AuthFormData],
-    );
+    (formData.username !== "" ||
+      formData.password !== "" ||
+      formData.confirmPassword !== "");
 
   return (
     <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-md">
@@ -118,9 +141,9 @@ export function AuthForm({
           placeholder="Enter your password"
           value={formData.password}
           onChange={handleChange}
-          required
           minLength={6}
           autoComplete="new-password"
+          required
         >
           <button
             type="button"
@@ -136,11 +159,11 @@ export function AuthForm({
             type={showPassword ? "text" : "password"}
             name="confirmPassword"
             placeholder="Confirm your password"
-            value={formData.confirmPassword || ""}
+            value={formData.confirmPassword}
             onChange={handleChange}
-            required
             minLength={6}
             autoComplete="new-password"
+            required
           />
         )}
         {!isLoginMode && (
@@ -160,10 +183,10 @@ export function AuthForm({
             <button
               type="button"
               disabled={!isResetFormEnabled}
-              onClick={() => resetFormData()}
+              onClick={clearFormData}
               className="w-full rounded-md bg-gray-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Reset Form
+              Clear Form
             </button>
           )}
         </div>

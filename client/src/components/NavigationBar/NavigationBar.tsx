@@ -1,6 +1,13 @@
 import { useMemo } from "react";
 import { useUser } from "../../hooks";
 
+/**
+ * Renders the application's top navigation bar with branding and a user menu when signed in.
+ *
+ * When a user is authenticated, displays the Avatar as a popover trigger; the popover shows the signed-in username and a "Sign out" button that invokes logout.
+ *
+ * @returns The navigation bar element containing the title and conditional user menu
+ */
 export function NavigationBar() {
   const { user, isAuthenticated, logout } = useUser();
 
@@ -17,22 +24,6 @@ export function NavigationBar() {
               className="user-menu-trigger flex items-center gap-2 rounded-full transition-opacity hover:opacity-80 focus:outline-none"
             >
               <Avatar username={user.username} />
-              <span className="text-sm font-medium text-gray-700">
-                {user.username}
-              </span>
-              <svg
-                className="h-4 w-4 text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
             </button>
 
             {/* The Popover Menu - positioned relative to the anchor */}

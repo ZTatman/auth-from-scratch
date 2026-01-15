@@ -5,15 +5,48 @@ import bcrypt from "bcryptjs";
 import jwt, { Secret } from "jsonwebtoken";
 import { userRepository } from "./db/repositories/userRepository";
 
-const app: Application = express();
+// Types
+import type {
+  RegisterResponse,
+  LoginResponse,
+  SafeUser,
+} from "@app/shared-types";
+import type { JwtPayload, AuthCredentials } from "./types";
+import type { User } from "./generated/prisma/client";
 
+// Constants
+const app: Application = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET as Secret;
+const JWT_SECRET = process.env.JWT_SECRET;
+const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+/**
+ * Return a SafeUser with sensitive fields removed and `createAt` converted to an ISO 8601 string.
+ *
+ * @param user - The full User record
+ * @returns A SafeUser containing `id`, `username`, and `createAt` as an ISO 8601 string
+ */
+function toSafeUser(user: User): SafeUser {
+  return {
+    id: user.id,
+    username: user.username,
+    createAt: user.createAt.toISOString(),
+  };
+}
+
+/**
+ * Validate that a password meets required complexity rules.
+ *
+ * @returns An empty string if the password satisfies all rules; otherwise a message describing the first failed requirement.
+ */
 function validatePassword(password: string): string {
   if (password.length < 8) {
     return "Password must be at least 8 characters long";
@@ -33,114 +66,131 @@ function validatePassword(password: string): string {
   return "";
 }
 
-app.post("/register", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password } = req.body as {
-      username: string;
-      password: string;
-    };
+app.post(
+  "/register",
+  async (req: Request, res: Response<RegisterResponse>): Promise<void> => {
+    try {
+      const { username, password } = req.body as AuthCredentials;
 
-    // 1. Check password validation requirements
-    const validationMessage = validatePassword(password);
-    if (validationMessage) {
-      res.status(400).json({
-        success: false,
-        message: validationMessage,
-        requirement: validationMessage,
+      if (!username || !password) {
+        res.status(400).json({
+          success: false,
+          message: "Username and password are required",
+        });
+        return;
+      }
+
+      // 1. Check password validation requirements
+      const validationMessage = validatePassword(password);
+      if (validationMessage) {
+        res.status(400).json({
+          success: false,
+          message: validationMessage,
+          requirement: validationMessage,
+        });
+        return;
+      }
+
+      // 2. Check for already existing user
+      const existingUser = await userRepository.findByUsername(username);
+      if (existingUser) {
+        res.status(400).json({
+          success: false,
+          message: "User already exists",
+        });
+        return;
+      }
+
+      // 3. Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // 4. Create new user
+      const newUser = await userRepository.create(username, hashedPassword);
+
+      // 5. Return response with data wrapper (no password)
+      res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+        data: {
+          user: toSafeUser(newUser),
+        },
       });
-      return;
-    }
-
-    // 2. Check for already existing user
-    // const existingUser = users.find((user) => user.username === username);
-    const existingUser = await userRepository.findByUsername(username);
-    if (existingUser) {
-      res.status(400).json({
+    } catch (error) {
+      // 6. Handle server error
+      console.error(error);
+      res.status(500).json({
         success: false,
-        message: "User already exists",
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
       });
-      return;
     }
+  },
+);
 
-    // 3. Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+app.post(
+  "/login",
+  async (req: Request, res: Response<LoginResponse>): Promise<void> => {
+    try {
+      const { username, password } = req.body as AuthCredentials;
 
-    // 4. Create new user and store
-    // const newUser: User = {
-    //   id: crypto.randomUUID(),
-    //   username,
-    //   _createdAt: new Date().toISOString(),
-    //   password: hashedPassword,
-    // };
-    // users.push(newUser);
-    const newUser = await userRepository.create(username, hashedPassword);
+      // 1. Validate request body
+      if (!username || !password) {
+        res.status(400).json({
+          success: false,
+          message: "Username and password are required.",
+        });
+        return;
+      }
 
-    // 5. Return response
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      user: newUser,
-    });
-  } catch (error) {
-    // 6. Handle server error
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred",
-    });
-  }
-});
+      // 2. Find user by username
+      const user = await userRepository.findByUsername(username);
 
-app.post("/login", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password } = req.body as {
-      username: string;
-      password: string;
-    };
+      // 3. Always perform password comparison (even if user doesn't exist)
+      // This prevents user enumeration by making timing consistent
+      let isPasswordValid = false;
+      if (user) {
+        isPasswordValid = await bcrypt.compare(password, user.password);
+      } else {
+        // Perform a dummy bcrypt comparison to maintain consistent timing
+        await bcrypt.compare(password, DUMMY_HASH);
+      }
 
-    // 1. Find user by username
-    const user = await userRepository.findByUsername(username);
+      // 4. Return same error for invalid user or password (prevents enumeration)
+      if (!user || !isPasswordValid) {
+        res.status(401).json({
+          success: false,
+          message: "Invalid credentials",
+        });
+        return;
+      }
 
-    // 2. Always perform password comparison (even if user doesn't exist)
-    // This prevents user enumeration by making timing consistent
-    let isPasswordValid = false;
-    if (user) {
-      isPasswordValid = await bcrypt.compare(password, user.password);
-    } else {
-      // Perform a dummy bcrypt comparison with a fake hash to maintain consistent timing
-      // This prevents attackers from determining if a user exists based on response time
-      await bcrypt.compare(password, "$2a$10$dummy.hash.to.prevent.timing.attacks");
-    }
+      // 5. Create JSON Web Token
+      const payload: JwtPayload = {
+        userId: user.id,
+        username: user.username,
+      };
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
-    // 3. Return same error message for both invalid user and invalid password
-    // This prevents user enumeration attacks
-    if (!user || !isPasswordValid) {
-      res.status(401).json({
+      // 6. Return response with data wrapper (no password)
+      res.status(200).json({
+        success: true,
+        message: "Login successful",
+        data: {
+          user: toSafeUser(user),
+          token,
+        },
+      });
+    } catch (error) {
+      // 7. Handle server error
+      console.error(error);
+      res.status(500).json({
         success: false,
-        message: "Invalid credentials",
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
       });
-      return;
     }
-
-    // 4. Create JSON Web Token
-    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "1h" });
-
-    // 5. Return response
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      user,
-      token,
-    });
-  } catch (error) {
-    // 6. Handle server error
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred",
-    });
-  }
-});
+  },
+);
 
 app.get("/", (_req: Request, res: Response): void => {
   res.send("hello world");
