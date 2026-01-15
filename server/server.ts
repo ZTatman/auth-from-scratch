@@ -5,17 +5,20 @@ import bcrypt from "bcryptjs";
 import jwt, { Secret } from "jsonwebtoken";
 import { userRepository } from "./db/repositories/userRepository";
 
+// Types
 import type {
   RegisterResponse,
   LoginResponse,
   SafeUser,
 } from "@app/shared-types";
 import type { JwtPayload, AuthCredentials } from "./types";
+import type { User } from "./generated/prisma/client";
 
+// Constants
 const app: Application = express();
-
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET;
+const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is required");
@@ -25,20 +28,24 @@ if (!JWT_SECRET) {
 app.use(cors());
 app.use(express.json());
 
-// Helper to strip password from user object and convert Date to string for JSON
-function toSafeUser(user: {
-  id: string;
-  username: string;
-  createAt: Date;
-  password: string;
-}): SafeUser {
-  const { password: _, createAt, ...safe } = user;
+/**
+ * Helper function to strip password from user object and convert Date to string for JSON
+ * @param user - The user object to convert
+ * @returns The safe user object
+ */
+function toSafeUser(user: User): SafeUser {
   return {
-    ...safe,
-    createAt: createAt.toISOString(),
+    id: user.id,
+    username: user.username,
+    createAt: user.createAt.toISOString(),
   };
 }
 
+/**
+ * Helper function to validate the password
+ * @param password - The password to validate
+ * @returns The validation message
+ */
 function validatePassword(password: string): string {
   if (password.length < 8) {
     return "Password must be at least 8 characters long";
@@ -125,6 +132,7 @@ app.post(
     try {
       const { username, password } = req.body as AuthCredentials;
 
+      // 1. Validate request body
       if (!username || !password) {
         res.status(400).json({
           success: false,
@@ -133,23 +141,20 @@ app.post(
         return;
       }
 
-      // 1. Find user by username
+      // 2. Find user by username
       const user = await userRepository.findByUsername(username);
 
-      // 2. Always perform password comparison (even if user doesn't exist)
+      // 3. Always perform password comparison (even if user doesn't exist)
       // This prevents user enumeration by making timing consistent
       let isPasswordValid = false;
       if (user) {
         isPasswordValid = await bcrypt.compare(password, user.password);
       } else {
         // Perform a dummy bcrypt comparison to maintain consistent timing
-        await bcrypt.compare(
-          password,
-          "$2a$10$XXXXXXXXXXXXXXXXXXXXXXOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-        );
+        await bcrypt.compare(password, DUMMY_HASH);
       }
 
-      // 3. Return same error for invalid user or password (prevents enumeration)
+      // 4. Return same error for invalid user or password (prevents enumeration)
       if (!user || !isPasswordValid) {
         res.status(401).json({
           success: false,
@@ -158,14 +163,14 @@ app.post(
         return;
       }
 
-      // 4. Create JSON Web Token
+      // 5. Create JSON Web Token
       const payload: JwtPayload = {
         userId: user.id,
         username: user.username,
       };
       const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
-      // 5. Return response with data wrapper (no password)
+      // 6. Return response with data wrapper (no password)
       res.status(200).json({
         success: true,
         message: "Login successful",
@@ -175,7 +180,7 @@ app.post(
         },
       });
     } catch (error) {
-      // 6. Handle server error
+      // 7. Handle server error
       console.error(error);
       res.status(500).json({
         success: false,

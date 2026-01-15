@@ -1,5 +1,9 @@
 import { useState } from "react";
+
+// Types
 import type { ActivityLogEntry, LoginForm, RegisterForm } from "../../types";
+
+// Components
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
 import { GenerateCredentialsSection } from "../GenerateCredentialsSection/GenerateCredentialsSection";
 
@@ -142,7 +146,7 @@ export function AuthForm({
             type={showPassword ? "text" : "password"}
             name="confirmPassword"
             placeholder="Confirm your password"
-            value={formData.confirmPassword || ""}
+            value={formData.confirmPassword}
             onChange={handleChange}
             minLength={6}
             autoComplete="new-password"
@@ -166,7 +170,7 @@ export function AuthForm({
             <button
               type="button"
               disabled={!isResetFormEnabled}
-              onClick={() => clearFormData()}
+              onClick={clearFormData}
               className="w-full rounded-md bg-gray-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Clear Form
