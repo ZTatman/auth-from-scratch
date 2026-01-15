@@ -29,9 +29,10 @@ app.use(cors());
 app.use(express.json());
 
 /**
- * Helper function to strip password from user object and convert Date to string for JSON
- * @param user - The user object to convert
- * @returns The safe user object
+ * Return a SafeUser with sensitive fields removed and `createAt` converted to an ISO 8601 string.
+ *
+ * @param user - The full User record
+ * @returns A SafeUser containing `id`, `username`, and `createAt` as an ISO 8601 string
  */
 function toSafeUser(user: User): SafeUser {
   return {
@@ -42,9 +43,9 @@ function toSafeUser(user: User): SafeUser {
 }
 
 /**
- * Helper function to validate the password
- * @param password - The password to validate
- * @returns The validation message
+ * Validate that a password meets required complexity rules.
+ *
+ * @returns An empty string if the password satisfies all rules; otherwise a message describing the first failed requirement.
  */
 function validatePassword(password: string): string {
   if (password.length < 8) {

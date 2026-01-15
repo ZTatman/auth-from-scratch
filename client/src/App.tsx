@@ -17,7 +17,13 @@ import { UserProvider } from "./components/UserContext/UserContext";
 // Styles
 import "./App.css";
 
-// Helper function to convert API response to ActivityLogEntry
+/**
+ * Create an activity log entry describing the outcome of a login or register API response.
+ *
+ * @param result - The `LoginResponse` or `RegisterResponse` whose outcome is recorded; when `success` is true the entry includes `data.user` and an optional `data.token`, otherwise it may include `requirement`.
+ * @param type - Label for the entry, either `"login"` or `"register"`.
+ * @returns An ActivityLogEntry containing an ISO timestamp, `status` ("success" or "error"), `type`, `message`, and either `user` (with optional `token`) on success or `requirement` on error.
+ */
 function createLogEntry(
   result: LoginResponse | RegisterResponse,
   type: "login" | "register",
@@ -44,6 +50,14 @@ function createLogEntry(
   }
 }
 
+/**
+ * Renders the main application content and manages authentication flows and the activity log.
+ *
+ * Maintains an in-memory activity log, provides handlers for login and registration to the
+ * AuthForm, and updates user context on successful login when a token is returned.
+ *
+ * @returns The JSX for the app content including the navigation bar, authentication form, and activity log.
+ */
 function AppContent() {
   const { login } = useUser();
   const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);

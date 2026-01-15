@@ -19,6 +19,14 @@ export const UserContext = createContext<UserContextType | undefined>(
   undefined,
 );
 
+/**
+ * Provides authentication state and actions (login, logout) to descendant components through UserContext.
+ *
+ * Exposes role, isAuthenticated, user, authToken, their setters, and auth methods (`login`, `logout`) via context.
+ *
+ * @param children - Child elements that will receive the user context
+ * @returns A React element rendering the UserContext provider wrapping `children`
+ */
 export function UserProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string>("default");
   const [user, setUser] = useState<SafeUser | null>(null);
