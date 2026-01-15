@@ -26,6 +26,19 @@ interface AuthFormProps {
   setActivityLog: React.Dispatch<React.SetStateAction<ActivityLogEntry[]>>;
 }
 
+/**
+ * Renders an authentication form that supports toggling between register and login modes.
+ *
+ * The component handles user input, password visibility, generated credentials, form submission,
+ * and activity log updates. In login mode it calls `onLogin` and clears the form on success.
+ * In register mode it calls `onRegister` when passwords match; when they don't, it appends an
+ * error entry to `setActivityLog`.
+ *
+ * @param onLogin - Called with `{ username, password }` when submitting in login mode; should return `true` on successful authentication.
+ * @param onRegister - Called with `{ username, password, confirmPassword }` when submitting in register mode.
+ * @param setActivityLog - State updater for appending activity log entries (used to record registration errors).
+ * @returns The rendered authentication form element.
+ */
 export function AuthForm({
   onLogin,
   onRegister,
