@@ -1,10 +1,12 @@
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useUser } from "../../hooks";
 
 /**
  * Renders the application's top navigation bar with branding and a user menu when signed in.
  *
- * When a user is authenticated, displays the Avatar as a popover trigger; the popover shows the signed-in username and a "Sign out" button that invokes logout.
+ * When a user is authenticated, displays the Avatar as a popover trigger; the popover shows
+ * the signed-in username, a link to the profile page, and a "Sign out" button that invokes logout.
  *
  * @returns The navigation bar element containing the title and conditional user menu
  */
@@ -14,7 +16,9 @@ export function NavigationBar() {
   return (
     <div className="sticky top-0 z-50 w-full bg-white p-4 shadow-md">
       <div className="container mx-auto flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Auth From Scratch</h1>
+        <Link to="/" className="text-2xl font-bold hover:opacity-80">
+          Auth From Scratch
+        </Link>
 
         {isAuthenticated && user && (
           <div className="relative">
@@ -36,6 +40,25 @@ export function NavigationBar() {
                 Signed in as <br />
                 <span className="font-bold text-gray-900">{user.username}</span>
               </div>
+              <Link
+                to="/profile"
+                className="flex w-full items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                <svg
+                  className="mr-3 h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                Profile
+              </Link>
               <button
                 onClick={() => logout()}
                 className="flex w-full items-center px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
