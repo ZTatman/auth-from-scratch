@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, type ReactNode } from "react";
+import { useState, createContext, type ReactNode } from "react";
 import type { SafeUser } from "@app/shared-types";
 import * as userUtils from "../../utils/user";
 
@@ -20,6 +20,37 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 /**
+ * Get the initial authentication state from localStorage.
+ *
+ * This function runs synchronously during component initialization to prevent
+ * a flash of unauthenticated content on page refresh.
+ *
+ * @returns Object containing initial user, token, and authentication status
+ */
+function getInitialAuthState(): {
+  user: SafeUser | null;
+  authToken: string | null;
+  isAuthenticated: boolean;
+} {
+  const storedToken = userUtils.getToken();
+  const storedUser = userUtils.getUser();
+
+  if (storedToken && storedUser) {
+    return {
+      user: storedUser,
+      authToken: storedToken,
+      isAuthenticated: true,
+    };
+  }
+
+  return {
+    user: null,
+    authToken: null,
+    isAuthenticated: false,
+  };
+}
+
+/**
  * Provides authentication state and actions (login, logout) to descendant components through UserContext.
  *
  * Exposes role, isAuthenticated, user, authToken, their setters, and auth methods (`login`, `logout`) via context.
@@ -28,23 +59,17 @@ export const UserContext = createContext<UserContextType | undefined>(
  * @returns A React element rendering the UserContext provider wrapping `children`
  */
 export function UserProvider({ children }: { children: ReactNode }) {
+  // Initialize auth state synchronously from localStorage to prevent flash of login form
+  const initialAuthState = getInitialAuthState();
+
   const [role, setRole] = useState<string>("default");
-  const [user, setUser] = useState<SafeUser | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-  useEffect(() => {
-    // get token and user from localStorage
-    const storedToken = userUtils.getToken();
-    const storedUser = userUtils.getUser();
-
-    // if token and user are found, set them in the context
-    if (storedToken && storedUser) {
-      setAuthToken(storedToken);
-      setUser(storedUser);
-      setIsAuthenticated(true);
-    }
-  }, []);
+  const [user, setUser] = useState<SafeUser | null>(initialAuthState.user);
+  const [authToken, setAuthToken] = useState<string | null>(
+    initialAuthState.authToken,
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    initialAuthState.isAuthenticated,
+  );
 
   const login = (user: SafeUser, authToken: string): void => {
     // update localStorage

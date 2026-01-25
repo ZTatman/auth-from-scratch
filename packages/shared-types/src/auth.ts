@@ -36,3 +36,4 @@ export interface AuthData {
 // Composed response types
 export type LoginResponse = ApiResponse<AuthData>;
 export type RegisterResponse = ApiResponse<AuthData>;
+export type ProfileResponse = ApiResponse<SafeUser>;
