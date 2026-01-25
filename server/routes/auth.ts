@@ -74,12 +74,11 @@ router.post(
         },
       });
     } catch (error) {
-      // 6. Handle server error
-      console.error(error);
+      // 6. Handle server error - log internally but return generic message
+      console.error("Registration error:", error);
       res.status(500).json({
         success: false,
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
+        message: "An error occurred during registration",
       });
     }
   },
@@ -145,12 +144,11 @@ router.post(
         },
       });
     } catch (error) {
-      // 7. Handle server error
-      console.error(error);
+      // 7. Handle server error - log internally but return generic message
+      console.error("Login error:", error);
       res.status(500).json({
         success: false,
-        message:
-          error instanceof Error ? error.message : "Unknown error occurred",
+        message: "An error occurred during login",
       });
     }
   },

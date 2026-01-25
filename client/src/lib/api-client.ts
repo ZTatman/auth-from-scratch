@@ -82,8 +82,17 @@ export class ApiClient {
         }
       }
 
-      // Parse successful response
-      return await response.json();
+      // Handle empty/204 responses (e.g., logout, delete operations)
+      if (response.status === 204) {
+        return undefined as T;
+      }
+
+      // Parse successful response (handle empty bodies gracefully)
+      const text = await response.text();
+      if (!text) {
+        return undefined as T;
+      }
+      return JSON.parse(text) as T;
     } catch (error) {
       return this.handleError(error) as T;
     }

@@ -85,9 +85,10 @@ import "./App.css";
 ### Naming Conventions
 
 - **Components**: PascalCase (e.g., `NavigationBar`, `AuthForm`)
+- **Component Folders**: PascalCase matching the component (e.g., `UserContext/UserContext.tsx`)
 - **Functions/Variables**: camelCase (e.g., `loginUser`, `activityLog`)
 - **Constants**: SCREAMING_SNAKE_CASE for config constants (e.g., `JWT_SECRET`, `PORT`)
-- **Files**: kebab-case for utilities (e.g., `user-context.tsx`), PascalCase for components
+- **Files**: PascalCase for components (e.g., `ProfileCard.tsx`), kebab-case for utilities (e.g., `api-client.ts`)
 - **Exports**: Use named exports for all components and utilities
 
 ### JSDoc Comments

@@ -1,10 +1,11 @@
 import { Router, Response } from "express";
+import rateLimit from "express-rate-limit";
 import { userRepository } from "../db/repositories/userRepository";
+import { toSafeUser } from "../utils/response";
 import {
   authenticateToken,
   type AuthenticatedRequest,
 } from "../middleware/auth";
-import rateLimit from "express-rate-limit";
 
 // Types
 import type { ProfileResponse } from "@app/shared-types";
@@ -25,13 +26,13 @@ const profileRateLimiter = rateLimit({
 /**
  * GET /api/profile
  *
-  profileRateLimiter,
  * Retrieves the current user's profile information.
  * This route is protected by JWT authentication middleware.
  * Returns user data excluding sensitive information like passwords.
  */
 router.get(
   "/profile",
+  profileRateLimiter,
   authenticateToken,
   async (
     req: AuthenticatedRequest,
@@ -64,11 +65,7 @@ router.get(
       res.status(200).json({
         success: true,
         message: "Profile retrieved successfully",
-        data: {
-          id: user.id,
-          username: user.username,
-          createAt: user.createAt.toISOString(),
-        },
+        data: toSafeUser(user),
       });
     } catch (error) {
       console.error("Profile retrieval error:", error);
