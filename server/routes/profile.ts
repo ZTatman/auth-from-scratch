@@ -4,15 +4,28 @@ import {
   authenticateToken,
   type AuthenticatedRequest,
 } from "../middleware/auth";
+import rateLimit from "express-rate-limit";
 
 // Types
 import type { ProfileResponse } from "@app/shared-types";
 
 const router = Router();
 
+const profileRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 profile requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many profile requests from this IP, please try again later",
+  },
+});
+
 /**
  * GET /api/profile
  *
+  profileRateLimiter,
  * Retrieves the current user's profile information.
  * This route is protected by JWT authentication middleware.
  * Returns user data excluding sensitive information like passwords.
