@@ -13,6 +13,39 @@ export function GenerateCredentialsSection({
     password: string;
   } | null>(null);
 
+  const getSecureRandomInt = (max: number): number => {
+    if (max <= 0) {
+      throw new Error("max must be positive");
+    }
+
+    // Prefer Web Crypto API when available
+    const cryptoObj =
+      typeof window !== "undefined"
+        ? (window.crypto || (window as any).msCrypto)
+        : undefined;
+
+    if (cryptoObj && typeof cryptoObj.getRandomValues === "function") {
+      // Use rejection sampling to avoid modulo bias
+      const range = max;
+      const maxUint32 = 0xffffffff;
+      const buckets = Math.floor(maxUint32 / range);
+      const limit = buckets * range;
+      const buffer = new Uint32Array(1);
+
+      // Loop until we get a value below the limit
+      while (true) {
+        cryptoObj.getRandomValues(buffer);
+        const randomValue = buffer[0];
+        if (randomValue < limit) {
+          return randomValue % range;
+        }
+      }
+    }
+
+    // Fallback to Math.random() if crypto is unavailable (e.g., in some test environments)
+    return Math.floor(Math.random() * max);
+  };
+
   const generateRandomCredentials = () => {
     const adjectives = [
       "Happy",
@@ -34,10 +67,9 @@ export function GenerateCredentialsSection({
       "Fox",
       "Bear",
     ];
-    const randomAdjective =
-      adjectives[Math.floor(Math.random() * adjectives.length)];
-    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-    const randomNumber = Math.floor(Math.random() * 1000);
+    const randomAdjective = adjectives[getSecureRandomInt(adjectives.length)];
+    const randomNoun = nouns[getSecureRandomInt(nouns.length)];
+    const randomNumber = getSecureRandomInt(1000);
     const username = `${randomAdjective}${randomNoun}${randomNumber}`;
 
     // Generate password that meets all requirements
@@ -64,23 +96,22 @@ export function GenerateCredentialsSection({
 
     // Start with one character from each required category
     const requiredChars = [
-      uppercase[Math.floor(Math.random() * uppercase.length)],
-      lowercase[Math.floor(Math.random() * lowercase.length)],
-      numbers[Math.floor(Math.random() * numbers.length)],
-      special[Math.floor(Math.random() * special.length)],
+      uppercase[getSecureRandomInt(uppercase.length)],
+      lowercase[getSecureRandomInt(lowercase.length)],
+      numbers[getSecureRandomInt(numbers.length)],
+      special[getSecureRandomInt(special.length)],
     ];
 
     // Fill remaining characters (12 total - 4 required = 8 random)
     const remainingLength = 12 - requiredChars.length;
-    const randomChars = Array.from(
-      { length: remainingLength },
-      () => allChars[Math.floor(Math.random() * allChars.length)],
-    );
+    const randomChars = Array.from({ length: remainingLength }, () => {
+      return allChars[getSecureRandomInt(allChars.length)];
+    });
 
     // Combine and shuffle to randomize positions
     const allPasswordChars = [...requiredChars, ...randomChars];
     for (let i = allPasswordChars.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = getSecureRandomInt(i + 1);
       [allPasswordChars[i], allPasswordChars[j]] = [
         allPasswordChars[j],
         allPasswordChars[i],
