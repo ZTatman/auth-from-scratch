@@ -9,7 +9,7 @@ import type {
   AuthFlowEntry,
   AuthStep,
 } from "../../types";
-import { createInitialSteps, generateFlowId } from "../../types";
+import { createLoginSteps, createRegisterSteps, generateFlowId } from "../../types";
 
 // Hooks
 import { useRegister, useUser } from "../../hooks";
@@ -132,15 +132,14 @@ export function AuthPage() {
   );
 
   /**
-   * Simulate the auth flow steps with delays for educational effect.
+   * Run login flow steps with delays for educational effect.
    */
-  const runAuthFlowSteps = useCallback(
+  const runLoginFlowSteps = useCallback(
     async (
       flowId: string,
-      type: "login" | "register",
-      apiCall: () => Promise<LoginResponse | RegisterResponse>,
-    ): Promise<LoginResponse | RegisterResponse> => {
-      // Step 1: Request sent
+      apiCall: () => Promise<LoginResponse>,
+    ): Promise<LoginResponse> => {
+      // Step 1: Request Sent
       updateFlowStep(flowId, "request", {
         status: "in_progress",
         timestamp: new Date().toISOString(),
@@ -148,7 +147,7 @@ export function AuthPage() {
       await delay(STEP_DELAY);
       updateFlowStep(flowId, "request", { status: "success" });
 
-      // Step 2: Server validating
+      // Step 2: Finding User
       updateFlowStep(flowId, "validate", {
         status: "in_progress",
         timestamp: new Date().toISOString(),
@@ -156,11 +155,10 @@ export function AuthPage() {
       await delay(STEP_DELAY);
 
       // Make the actual API call
-      let result: LoginResponse | RegisterResponse;
+      let result: LoginResponse;
       try {
         result = await apiCall();
       } catch (error) {
-        // Mark validation as failed
         updateFlowStep(flowId, "validate", {
           status: "error",
           detail: error instanceof Error ? error.message : "Request failed",
@@ -169,7 +167,6 @@ export function AuthPage() {
       }
 
       if (!result.success) {
-        // Mark validation as failed
         updateFlowStep(flowId, "validate", {
           status: "error",
           detail: result.message,
@@ -177,40 +174,145 @@ export function AuthPage() {
         return result;
       }
 
-      updateFlowStep(flowId, "validate", { status: "success" });
+      updateFlowStep(flowId, "validate", {
+        status: "success",
+        detail: "User found in database",
+      });
 
-      // Step 3: Processing credentials
+      // Step 3: Verifying Password
       updateFlowStep(flowId, "process", {
         status: "in_progress",
         timestamp: new Date().toISOString(),
       });
       await delay(STEP_DELAY);
-      updateFlowStep(flowId, "process", { status: "success" });
+      updateFlowStep(flowId, "process", {
+        status: "success",
+        detail: "Password hash matches",
+      });
 
-      // For login, continue with token steps
-      if (type === "login" && result.success && result.data.token) {
-        // Step 4: Token created
-        updateFlowStep(flowId, "token", {
-          status: "in_progress",
-          timestamp: new Date().toISOString(),
-        });
-        await delay(STEP_DELAY);
-        updateFlowStep(flowId, "token", {
-          status: "success",
-          detail: `JWT token received`,
-        });
+      // Step 4: Creating Token
+      updateFlowStep(flowId, "token", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+      updateFlowStep(flowId, "token", {
+        status: "success",
+        detail: "eyJhbGciOiJIUzI1NiIs...",
+      });
 
-        // Step 5: Token stored
-        updateFlowStep(flowId, "store", {
-          status: "in_progress",
-          timestamp: new Date().toISOString(),
+      // Step 5: Storing Token
+      updateFlowStep(flowId, "store", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+      updateFlowStep(flowId, "store", {
+        status: "success",
+        detail: "localStorage.setItem('auth_token', ...)",
+      });
+
+      return result;
+    },
+    [updateFlowStep],
+  );
+
+  /**
+   * Run registration flow steps with delays for educational effect.
+   */
+  const runRegisterFlowSteps = useCallback(
+    async (
+      flowId: string,
+      apiCall: () => Promise<RegisterResponse>,
+    ): Promise<RegisterResponse> => {
+      // Step 1: Request Sent
+      updateFlowStep(flowId, "request", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+      updateFlowStep(flowId, "request", { status: "success" });
+
+      // Step 2: Validating Input
+      updateFlowStep(flowId, "validate", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+
+      // Make the actual API call
+      let result: RegisterResponse;
+      try {
+        result = await apiCall();
+      } catch (error) {
+        updateFlowStep(flowId, "validate", {
+          status: "error",
+          detail: error instanceof Error ? error.message : "Request failed",
         });
-        await delay(STEP_DELAY);
-        updateFlowStep(flowId, "store", {
-          status: "success",
-          detail: "Stored in localStorage",
-        });
+        throw error;
       }
+
+      // Check for validation errors
+      if (!result.success) {
+        // Determine which step failed based on the error
+        const errorMsg = result.message.toLowerCase();
+        if (errorMsg.includes("password") || errorMsg.includes("username is required")) {
+          updateFlowStep(flowId, "validate", {
+            status: "error",
+            detail: result.message,
+          });
+        } else if (errorMsg.includes("exists") || errorMsg.includes("taken")) {
+          updateFlowStep(flowId, "validate", { status: "success" });
+          updateFlowStep(flowId, "check_user", {
+            status: "error",
+            detail: result.message,
+          });
+        } else {
+          updateFlowStep(flowId, "validate", {
+            status: "error",
+            detail: result.message,
+          });
+        }
+        return result;
+      }
+
+      updateFlowStep(flowId, "validate", {
+        status: "success",
+        detail: "All requirements met",
+      });
+
+      // Step 3: Checking Username
+      updateFlowStep(flowId, "check_user", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+      updateFlowStep(flowId, "check_user", {
+        status: "success",
+        detail: "Username is available",
+      });
+
+      // Step 4: Hashing Password
+      updateFlowStep(flowId, "hash", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+      updateFlowStep(flowId, "hash", {
+        status: "success",
+        detail: "$2a$10$...",
+      });
+
+      // Step 5: Creating User
+      updateFlowStep(flowId, "create", {
+        status: "in_progress",
+        timestamp: new Date().toISOString(),
+      });
+      await delay(STEP_DELAY);
+      updateFlowStep(flowId, "create", {
+        status: "success",
+        detail: "User saved to database",
+      });
 
       return result;
     },
@@ -228,7 +330,7 @@ export function AuthPage() {
       type: "login",
       timestamp: new Date().toISOString(),
       status: "pending",
-      steps: createInitialSteps(),
+      steps: createLoginSteps(),
       request: {
         method: "POST",
         url: "/api/login",
@@ -243,7 +345,7 @@ export function AuthPage() {
     try {
       // Call API directly instead of using useLogin hook
       // This prevents auto-redirect so user can see the flow
-      const result = await runAuthFlowSteps(flowId, "login", () =>
+      const result = await runLoginFlowSteps(flowId, () =>
         authApi.login(data),
       );
 
@@ -309,17 +411,12 @@ export function AuthPage() {
   const handleRegister = async (data: RegisterForm): Promise<void> => {
     const flowId = generateFlowId();
 
-    // For registration, we don't have token steps
-    const registrationSteps = createInitialSteps().filter(
-      (step) => step.id !== "token" && step.id !== "store",
-    );
-
     const newFlow: AuthFlowEntry = {
       id: flowId,
       type: "register",
       timestamp: new Date().toISOString(),
       status: "pending",
-      steps: registrationSteps,
+      steps: createRegisterSteps(),
       request: {
         method: "POST",
         url: "/api/register",
@@ -336,7 +433,7 @@ export function AuthPage() {
     setActiveFlowId(flowId);
 
     try {
-      const result = await runAuthFlowSteps(flowId, "register", () =>
+      const result = await runRegisterFlowSteps(flowId, () =>
         registerMutation.mutateAsync(data),
       );
 

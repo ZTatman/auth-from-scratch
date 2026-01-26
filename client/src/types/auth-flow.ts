@@ -8,11 +8,21 @@
 export type AuthStepStatus = "pending" | "in_progress" | "success" | "error";
 
 /**
+ * Step definition with label and description.
+ */
+export interface StepDefinition {
+  id: string;
+  label: string;
+  description: string;
+}
+
+/**
  * Represents a single step in the authentication flow visualization.
  */
 export interface AuthStep {
   id: string;
   label: string;
+  description: string;
   status: AuthStepStatus;
   detail?: string;
   timestamp?: string;
@@ -53,23 +63,87 @@ export interface AuthFlowEntry {
 }
 
 /**
- * Default steps for the authentication flow visualization.
+ * Login flow steps with educational descriptions.
  */
-export const AUTH_FLOW_STEPS = [
-  { id: "request", label: "Request sent" },
-  { id: "validate", label: "Server validating" },
-  { id: "process", label: "Processing credentials" },
-  { id: "token", label: "Token created" },
-  { id: "store", label: "Token stored" },
-] as const;
+export const LOGIN_FLOW_STEPS: StepDefinition[] = [
+  {
+    id: "request",
+    label: "Request Sent",
+    description: "Client sends {username, password} to /api/login",
+  },
+  {
+    id: "validate",
+    label: "Finding User",
+    description: "Database lookup by username",
+  },
+  {
+    id: "process",
+    label: "Verifying Password",
+    description: "bcrypt compares password against stored hash",
+  },
+  {
+    id: "token",
+    label: "Creating Token",
+    description: "JWT generated with userId, username, 1hr expiry",
+  },
+  {
+    id: "store",
+    label: "Storing Token",
+    description: "Token saved to localStorage for future requests",
+  },
+];
 
 /**
- * Create initial steps for a new auth flow entry.
+ * Registration flow steps with educational descriptions.
  */
-export function createInitialSteps(): AuthStep[] {
-  return AUTH_FLOW_STEPS.map((step) => ({
+export const REGISTER_FLOW_STEPS: StepDefinition[] = [
+  {
+    id: "request",
+    label: "Request Sent",
+    description: "Client sends {username, password} to /api/register",
+  },
+  {
+    id: "validate",
+    label: "Validating Input",
+    description: "Server checks username format and password requirements",
+  },
+  {
+    id: "check_user",
+    label: "Checking Username",
+    description: "Database query to verify username isn't taken",
+  },
+  {
+    id: "hash",
+    label: "Hashing Password",
+    description: "bcrypt converts password to secure hash (10 salt rounds)",
+  },
+  {
+    id: "create",
+    label: "Creating User",
+    description: "New user record saved to database",
+  },
+];
+
+/**
+ * Create initial steps for a login flow.
+ */
+export function createLoginSteps(): AuthStep[] {
+  return LOGIN_FLOW_STEPS.map((step) => ({
     id: step.id,
     label: step.label,
+    description: step.description,
+    status: "pending" as AuthStepStatus,
+  }));
+}
+
+/**
+ * Create initial steps for a registration flow.
+ */
+export function createRegisterSteps(): AuthStep[] {
+  return REGISTER_FLOW_STEPS.map((step) => ({
+    id: step.id,
+    label: step.label,
+    description: step.description,
     status: "pending" as AuthStepStatus,
   }));
 }

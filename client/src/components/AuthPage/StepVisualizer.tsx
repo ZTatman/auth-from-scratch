@@ -10,7 +10,7 @@ interface StepVisualizerProps {
  */
 export function StepVisualizer({ steps }: StepVisualizerProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {steps.map((step, index) => (
         <StepItem key={step.id} step={step} stepNumber={index + 1} />
       ))}
@@ -24,41 +24,77 @@ interface StepItemProps {
 }
 
 /**
- * Individual step item with status icon and label.
+ * Individual step item with status icon, label, and description.
  */
 function StepItem({ step, stepNumber }: StepItemProps) {
+  const isPending = step.status === "pending";
+  const isError = step.status === "error";
+  const isInProgress = step.status === "in_progress";
+
   return (
-    <div className="flex items-center gap-3">
-      {/* Step number and status icon */}
-      <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
+    <div
+      className={`rounded-md border p-3 transition-all ${
+        isInProgress
+          ? "border-primary bg-primary/5"
+          : isPending
+            ? "border-muted bg-muted/30"
+            : isError
+              ? "border-destructive/50 bg-destructive/5"
+              : "border-green-500/50 bg-green-500/5"
+      }`}
+    >
+      {/* Header row: step number, icon, label, badge */}
+      <div className="flex items-center gap-3">
+        <span
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+            isPending
+              ? "bg-muted text-muted-foreground"
+              : isError
+                ? "bg-destructive/20 text-destructive"
+                : isInProgress
+                  ? "bg-primary/20 text-primary"
+                  : "bg-green-500/20 text-green-600 dark:text-green-400"
+          }`}
+        >
           {stepNumber}
         </span>
         <StatusIcon status={step.status} />
+        <span
+          className={`font-medium ${
+            isPending
+              ? "text-muted-foreground"
+              : isError
+                ? "text-destructive"
+                : "text-foreground"
+          }`}
+        >
+          {step.label}
+        </span>
+        {isInProgress && (
+          <Badge variant="outline" className="ml-auto text-xs">
+            Processing...
+          </Badge>
+        )}
       </div>
 
-      {/* Step content */}
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-sm ${
-              step.status === "pending"
-                ? "text-muted-foreground"
-                : step.status === "error"
-                  ? "text-destructive"
-                  : "text-foreground"
+      {/* Description row */}
+      <div className="mt-2 pl-9">
+        <p
+          className={`text-sm ${
+            isPending ? "text-muted-foreground/70" : "text-muted-foreground"
+          }`}
+        >
+          {step.description}
+        </p>
+        {/* Dynamic detail (e.g., error message or additional info) */}
+        {step.detail && (
+          <p
+            className={`mt-1 text-xs font-medium ${
+              isError ? "text-destructive" : "text-primary"
             }`}
           >
-            {step.label}
-          </span>
-          {step.status === "in_progress" && (
-            <Badge variant="outline" className="text-xs">
-              Processing...
-            </Badge>
-          )}
-        </div>
-        {step.detail && (
-          <p className="mt-0.5 text-xs text-muted-foreground">{step.detail}</p>
+            → {step.detail}
+          </p>
         )}
       </div>
     </div>
