@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Types
 import type {
@@ -95,8 +96,10 @@ interface PendingLogin {
  * Right panel: Authentication flow visualization with step-by-step walkthrough
  */
 export function AuthPage() {
+  const navigate = useNavigate();
+
   // Legacy activity log for backward compatibility (used by AuthForm for validation errors)
-  const [_activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
+  const [, setActivityLog] = useState<ActivityLogEntry[]>([]);
 
   // New auth flow entries for enhanced visualization
   const [authFlows, setAuthFlows] = useState<AuthFlowEntry[]>([]);
@@ -104,7 +107,7 @@ export function AuthPage() {
   // Currently active flow (for step animation)
   const [activeFlowId, setActiveFlowId] = useState<string | null>(null);
 
-  // Pending login - user must click "Continue" to complete
+  // Pending login flow - user is already logged in, but must click "Continue" to navigate to dashboard
   const [pendingLogin, setPendingLogin] = useState<PendingLogin | null>(null);
 
   const { login } = useUser();
@@ -387,14 +390,14 @@ export function AuthPage() {
 
       // Handle successful login
       if (result.success && result.data.token) {
-        // 1. Set pending login for the banner UI
+        // 1. Immediately log user in (updates Navbar)
+        login(result.data.user, result.data.token);
+
+        // 2. Set pending login for the banner UI and Continue button
         setPendingLogin({
           user: result.data.user,
           token: result.data.token,
         });
-        
-        // 2. Immediately update global auth state (so Navbar updates)
-        login(result.data.user, result.data.token);
       }
 
       return result.success;
@@ -421,12 +424,13 @@ export function AuthPage() {
   };
 
   /**
-   * Complete the pending login and redirect to dashboard.
+   * Complete the pending login flow and redirect to dashboard.
+   * Note: User is already logged in from handleLogin, this just handles navigation.
    */
   const handleContinueLogin = () => {
     if (pendingLogin) {
-      login(pendingLogin.user, pendingLogin.token);
       setPendingLogin(null);
+      navigate("/");
     }
   };
 
