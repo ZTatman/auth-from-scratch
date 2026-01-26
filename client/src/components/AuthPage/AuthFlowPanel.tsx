@@ -14,6 +14,7 @@ import {
 import { StepVisualizer } from "./StepVisualizer";
 import { RequestInspector } from "./RequestInspector";
 import { JWTDecoder } from "./JWTDecoder";
+import { StorageInspector } from "./StorageInspector";
 
 interface AuthFlowPanelProps {
   flows: AuthFlowEntry[];
@@ -31,11 +32,19 @@ export function AuthFlowPanel({
 }: AuthFlowPanelProps) {
   if (flows.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
-        <div className="mb-2 text-4xl">🔐</div>
-        <p className="text-center text-sm">
-          Submit the form to see the authentication flow in action
-        </p>
+      <div className="flex h-full flex-col">
+        <div className="flex flex-1 flex-col items-center justify-center text-muted-foreground">
+          <div className="mb-2 text-4xl">🔐</div>
+          <p className="text-center text-sm">
+            Submit the form to see the authentication flow in action
+          </p>
+        </div>
+
+        {/* Storage Inspector - always visible */}
+        <div className="mt-6 border-t pt-4">
+          <h3 className="mb-3 text-sm font-medium">Token Storage</h3>
+          <StorageInspector />
+        </div>
       </div>
     );
   }
@@ -61,6 +70,12 @@ export function AuthFlowPanel({
             isActive={flow.id === activeFlowId}
           />
         ))}
+      </div>
+
+      {/* Storage Inspector - always visible */}
+      <div className="mt-6 border-t pt-4">
+        <h3 className="mb-3 text-sm font-medium">Token Storage</h3>
+        <StorageInspector />
       </div>
     </div>
   );
