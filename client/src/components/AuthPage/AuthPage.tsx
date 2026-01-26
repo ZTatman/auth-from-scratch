@@ -17,6 +17,9 @@ import { useRegister, useUser } from "../../hooks";
 // API
 import { authApi } from "../../api/auth";
 
+// Utils
+import { saveToken, saveUser } from "../../utils/user";
+
 // shadcn components
 import {
   Card,
@@ -201,16 +204,23 @@ export function AuthPage() {
         detail: "eyJhbGciOiJIUzI1NiIs...",
       });
 
-      // Step 5: Storing Token
-      updateFlowStep(flowId, "store", {
-        status: "in_progress",
-        timestamp: new Date().toISOString(),
-      });
-      await delay(STEP_DELAY);
-      updateFlowStep(flowId, "store", {
-        status: "success",
-        detail: "localStorage.setItem('auth_token', ...)",
-      });
+      // Step 5: Storing Token - actually store to localStorage
+      if (result.success && result.data.token) {
+        updateFlowStep(flowId, "store", {
+          status: "in_progress",
+          timestamp: new Date().toISOString(),
+        });
+        await delay(STEP_DELAY);
+
+        // Actually store the token and user in localStorage
+        saveToken(result.data.token);
+        saveUser(result.data.user);
+
+        updateFlowStep(flowId, "store", {
+          status: "success",
+          detail: "localStorage.setItem('auth_token', ...)",
+        });
+      }
 
       return result;
     },
