@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 
 // Types
-import type { LoginResponse, RegisterResponse } from "@app/shared-types";
+import type { LoginResponse, RegisterResponse, SafeUser } from "@app/shared-types";
 import type {
   ActivityLogEntry,
   LoginForm,
@@ -12,7 +12,10 @@ import type {
 import { createInitialSteps, generateFlowId } from "../../types";
 
 // Hooks
-import { useLogin, useRegister } from "../../hooks";
+import { useRegister, useUser } from "../../hooks";
+
+// API
+import { authApi } from "../../api/auth";
 
 // shadcn components
 import {
@@ -66,6 +69,15 @@ function createLogEntry(
 }
 
 /**
+ * Pending login credentials after successful auth flow.
+ * User must click "Continue" to complete the login.
+ */
+interface PendingLogin {
+  user: SafeUser;
+  token: string;
+}
+
+/**
  * AuthPage component with split-screen layout.
  *
  * Left panel: Login/Register form
@@ -81,7 +93,10 @@ export function AuthPage() {
   // Currently active flow (for step animation)
   const [activeFlowId, setActiveFlowId] = useState<string | null>(null);
 
-  const loginMutation = useLogin();
+  // Pending login - user must click "Continue" to complete
+  const [pendingLogin, setPendingLogin] = useState<PendingLogin | null>(null);
+
+  const { login } = useUser();
   const registerMutation = useRegister();
 
   /**
@@ -204,6 +219,7 @@ export function AuthPage() {
 
   /**
    * Handle login form submission with flow visualization.
+   * Note: Does NOT auto-redirect. User must click "Continue" to complete login.
    */
   const handleLogin = async (data: LoginForm): Promise<boolean> => {
     const flowId = generateFlowId();
@@ -225,8 +241,10 @@ export function AuthPage() {
     setActiveFlowId(flowId);
 
     try {
+      // Call API directly instead of using useLogin hook
+      // This prevents auto-redirect so user can see the flow
       const result = await runAuthFlowSteps(flowId, "login", () =>
-        loginMutation.mutateAsync(data),
+        authApi.login(data),
       );
 
       // Update flow with response
@@ -243,6 +261,14 @@ export function AuthPage() {
 
       // Also update legacy activity log
       setActivityLog((prev) => [...prev, createLogEntry(result, "login")]);
+
+      // Store pending login - user must click "Continue" to complete
+      if (result.success && result.data.token) {
+        setPendingLogin({
+          user: result.data.user,
+          token: result.data.token,
+        });
+      }
 
       return result.success;
     } catch (error) {
@@ -264,6 +290,16 @@ export function AuthPage() {
       return false;
     } finally {
       setActiveFlowId(null);
+    }
+  };
+
+  /**
+   * Complete the pending login and redirect to dashboard.
+   */
+  const handleContinueLogin = () => {
+    if (pendingLogin) {
+      login(pendingLogin.user, pendingLogin.token);
+      setPendingLogin(null);
     }
   };
 
@@ -381,6 +417,8 @@ export function AuthPage() {
               flows={authFlows}
               activeFlowId={activeFlowId}
               onClear={handleClearFlows}
+              pendingLogin={pendingLogin}
+              onContinueLogin={handleContinueLogin}
             />
           </CardContent>
         </Card>

@@ -16,10 +16,17 @@ import { RequestInspector } from "./RequestInspector";
 import { JWTDecoder } from "./JWTDecoder";
 import { StorageInspector } from "./StorageInspector";
 
+interface PendingLogin {
+  user: { id: string; username: string; createAt: string };
+  token: string;
+}
+
 interface AuthFlowPanelProps {
   flows: AuthFlowEntry[];
   activeFlowId: string | null;
   onClear: () => void;
+  pendingLogin?: PendingLogin | null;
+  onContinueLogin?: () => void;
 }
 
 /**
@@ -29,6 +36,8 @@ export function AuthFlowPanel({
   flows,
   activeFlowId,
   onClear,
+  pendingLogin,
+  onContinueLogin,
 }: AuthFlowPanelProps) {
   if (flows.length === 0) {
     return (
@@ -60,6 +69,25 @@ export function AuthFlowPanel({
           Clear all
         </Button>
       </div>
+
+      {/* Pending Login Banner */}
+      {pendingLogin && onContinueLogin && (
+        <div className="mb-4 rounded-lg border border-green-500/50 bg-green-500/10 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="text-lg">✅</span>
+            <span className="font-medium text-green-700 dark:text-green-400">
+              Login Successful!
+            </span>
+          </div>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Welcome, <strong>{pendingLogin.user.username}</strong>! You can
+            review the authentication flow above, then continue to the dashboard.
+          </p>
+          <Button onClick={onContinueLogin} className="w-full">
+            Continue to Dashboard →
+          </Button>
+        </div>
+      )}
 
       {/* Flow entries */}
       <div className="flex-1 space-y-4 overflow-y-auto">
