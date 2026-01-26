@@ -1,55 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Types
-import type { LoginResponse, RegisterResponse } from "@app/shared-types";
-import type { ActivityLogEntry, LoginForm, RegisterForm } from "./types";
-
 // Hooks
-import { useUser, useLogin, useRegister, useGetProfile } from "./hooks";
+import { useUser, useGetProfile } from "./hooks";
 
 // Components
 import { NavigationBar } from "./components/NavigationBar/NavigationBar";
-import { AuthForm } from "./components/AuthForm/AuthForm";
-import { ActivityLog } from "./components/ActivityLog/ActivityLog";
+import { AuthPage } from "./components/AuthPage";
 import { ProfileCard } from "./components/ProfileCard/ProfileCard";
 import { UserProvider } from "./components/UserContext/UserContext";
 
 // Styles
 import "./App.css";
-
-/**
- * Create an activity log entry describing the outcome of a login or register API response.
- *
- * @param result - The `LoginResponse` or `RegisterResponse` whose outcome is recorded; when `success` is true the entry includes `data.user` and an optional `data.token`, otherwise it may include `requirement`.
- * @param type - Label for the entry, either `"login"` or `"register"`.
- * @returns An ActivityLogEntry containing an ISO timestamp, `status` ("success" or "error"), `type`, `message`, and either `user` (with optional `token`) on success or `requirement` on error.
- */
-function createLogEntry(
-  result: LoginResponse | RegisterResponse,
-  type: "login" | "register",
-): ActivityLogEntry {
-  if (result.success) {
-    // TypeScript automatically narrows: result is SuccessResponse<AuthData>
-    return {
-      timestamp: new Date().toISOString(),
-      status: "success",
-      type,
-      message: result.message,
-      user: result.data.user,
-      ...(result.data.token && { token: result.data.token }),
-    };
-  } else {
-    // TypeScript automatically narrows: result is ErrorResponse
-    return {
-      timestamp: new Date().toISOString(),
-      status: "error",
-      type,
-      message: result.message,
-      ...(result.requirement && { requirement: result.requirement }),
-    };
-  }
-}
 
 /**
  * Layout component that wraps pages with the navigation bar and common styling.
@@ -160,74 +122,6 @@ function ProfilePage() {
       <div className="mt-8 w-full max-w-md">
         <ProfileCard user={profile} onLogout={logout} />
       </div>
-    </PageLayout>
-  );
-}
-
-/**
- * Renders the authentication page with login/register forms and activity log.
- *
- * Maintains an in-memory activity log and provides handlers for login and registration.
- *
- * @returns The JSX for the auth page including forms and activity log.
- */
-function AuthPage() {
-  const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
-
-  const loginMutation = useLogin();
-  const registerMutation = useRegister();
-
-  const handleLogin = async (data: LoginForm): Promise<boolean> => {
-    try {
-      const result = await loginMutation.mutateAsync(data);
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        createLogEntry(result, "login"),
-      ]);
-      return result.success;
-    } catch (error) {
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        {
-          timestamp: new Date().toISOString(),
-          status: "error",
-          type: "login",
-          message: error instanceof Error ? error.message : "Login failed",
-        },
-      ]);
-      return false;
-    }
-  };
-
-  const handleRegister = async (data: RegisterForm): Promise<void> => {
-    try {
-      const result = await registerMutation.mutateAsync(data);
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        createLogEntry(result, "register"),
-      ]);
-    } catch (error) {
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        {
-          timestamp: new Date().toISOString(),
-          status: "error",
-          type: "register",
-          message:
-            error instanceof Error ? error.message : "Registration failed",
-        },
-      ]);
-    }
-  };
-
-  return (
-    <PageLayout>
-      <AuthForm
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-        setActivityLog={setActivityLog}
-      />
-      <ActivityLog entries={activityLog} onClear={() => setActivityLog([])} />
     </PageLayout>
   );
 }
