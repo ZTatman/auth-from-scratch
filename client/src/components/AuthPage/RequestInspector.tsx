@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { RequestDetails, ResponseDetails } from "../../types";
 import { Badge } from "@/components/ui/badge";
 
@@ -28,9 +29,7 @@ export function RequestInspector({
             <span className="text-xs font-medium text-muted-foreground">
               Headers:
             </span>
-            <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs">
-              {JSON.stringify(request.headers, null, 2)}
-            </pre>
+            <JsonBlock data={request.headers} />
           </div>
 
           {/* Request Body */}
@@ -38,9 +37,7 @@ export function RequestInspector({
             <span className="text-xs font-medium text-muted-foreground">
               Request Body:
             </span>
-            <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs">
-              {JSON.stringify(request.body, null, 2)}
-            </pre>
+            <JsonBlock data={request.body} />
             <p className="mt-1 text-xs italic text-muted-foreground">
               Note: Password masked as "***" for security
             </p>
@@ -67,9 +64,7 @@ export function RequestInspector({
             <span className="text-xs font-medium text-muted-foreground">
               Response Body:
             </span>
-            <pre className="mt-1 max-h-40 overflow-auto rounded-md bg-muted p-2 text-xs">
-              {JSON.stringify(sanitizeResponseBody(response.body), null, 2)}
-            </pre>
+            <JsonBlock data={sanitizeResponseBody(response.body)} maxHeight="10rem" />
           </div>
         </div>
       )}
@@ -85,6 +80,123 @@ export function RequestInspector({
       </div>
     </div>
   );
+}
+
+// ============================================
+// JSON Syntax Highlighting
+// ============================================
+
+interface JsonBlockProps {
+  data: unknown;
+  maxHeight?: string;
+}
+
+/**
+ * Renders JSON with syntax highlighting and proper formatting.
+ */
+function JsonBlock({ data, maxHeight }: JsonBlockProps) {
+  return (
+    <pre
+      className="mt-1 overflow-auto rounded-md bg-muted p-3 text-left text-xs font-mono"
+      style={{ maxHeight }}
+    >
+      <JsonValue value={data} indent={0} />
+    </pre>
+  );
+}
+
+interface JsonValueProps {
+  value: unknown;
+  indent: number;
+}
+
+/**
+ * Recursively renders JSON values with syntax highlighting.
+ */
+function JsonValue({ value, indent }: JsonValueProps): ReactNode {
+  const indentStr = "  ".repeat(indent);
+  const nextIndent = indent + 1;
+  const nextIndentStr = "  ".repeat(nextIndent);
+
+  // Null
+  if (value === null) {
+    return <span className="text-orange-500 dark:text-orange-400">null</span>;
+  }
+
+  // Boolean
+  if (typeof value === "boolean") {
+    return (
+      <span className="text-orange-500 dark:text-orange-400">
+        {value ? "true" : "false"}
+      </span>
+    );
+  }
+
+  // Number
+  if (typeof value === "number") {
+    return (
+      <span className="text-blue-600 dark:text-blue-400">{value}</span>
+    );
+  }
+
+  // String
+  if (typeof value === "string") {
+    return (
+      <span className="text-green-600 dark:text-green-400">"{value}"</span>
+    );
+  }
+
+  // Array
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return <span className="text-foreground">[]</span>;
+    }
+    return (
+      <>
+        <span className="text-foreground">[</span>
+        {"\n"}
+        {value.map((item, index) => (
+          <span key={index}>
+            {nextIndentStr}
+            <JsonValue value={item} indent={nextIndent} />
+            {index < value.length - 1 ? "," : ""}
+            {"\n"}
+          </span>
+        ))}
+        {indentStr}
+        <span className="text-foreground">]</span>
+      </>
+    );
+  }
+
+  // Object
+  if (typeof value === "object") {
+    const entries = Object.entries(value);
+    if (entries.length === 0) {
+      return <span className="text-foreground">{"{}"}</span>;
+    }
+    return (
+      <>
+        <span className="text-foreground">{"{"}</span>
+        {"\n"}
+        {entries.map(([key, val], index) => (
+          <span key={key}>
+            {nextIndentStr}
+            <span className="text-purple-600 dark:text-purple-400">"{key}"</span>
+            <span className="text-foreground">: </span>
+            <JsonValue value={val} indent={nextIndent} />
+            {index < entries.length - 1 ? "," : ""}
+            {"\n"}
+          </span>
+        ))}
+        {indentStr}
+        <span className="text-foreground">{"}"}</span>
+      </>
+    );
+  }
+
+  // Fallback
+  return <span className="text-foreground">{String(value)}</span>;
 }
 
 /**
