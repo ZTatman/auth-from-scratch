@@ -8,7 +8,9 @@ import type { LoginForm, RegisterForm } from "../types";
  * @param formData - Username and password for registration
  * @returns RegisterResponse with user data on success, or error details on failure
  */
-export async function register(formData: RegisterForm): Promise<RegisterResponse> {
+export async function register(
+  formData: RegisterForm,
+): Promise<RegisterResponse> {
   try {
     const response = await fetch("/api/register", {
       method: "POST",

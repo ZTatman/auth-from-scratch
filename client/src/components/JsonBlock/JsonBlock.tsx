@@ -18,7 +18,7 @@ export function JsonBlock({ data, maxHeight, className }: JsonBlockProps) {
   return (
     <pre
       className={cn(
-        "overflow-auto rounded-md bg-muted p-3 text-left text-xs font-mono",
+        "bg-muted overflow-auto rounded-md p-3 text-left font-mono text-xs",
         className,
       )}
       style={{ maxHeight }}
@@ -103,7 +103,9 @@ function JsonValue({ value, indent }: JsonValueProps): ReactNode {
         {entries.map(([key, val], index) => (
           <span key={key}>
             {nextIndentStr}
-            <span className="text-purple-600 dark:text-purple-400">"{key}"</span>
+            <span className="text-purple-600 dark:text-purple-400">
+              "{key}"
+            </span>
             <span className="text-foreground">: </span>
             <JsonValue value={val} indent={nextIndent} />
             {index < entries.length - 1 ? "," : ""}

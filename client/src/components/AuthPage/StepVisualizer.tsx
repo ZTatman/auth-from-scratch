@@ -10,9 +10,14 @@ interface StepVisualizerProps {
  */
 export function StepVisualizer({ steps }: StepVisualizerProps) {
   return (
-    <div className="space-y-3">
+    <div className="relative space-y-0">
       {steps.map((step, index) => (
-        <StepItem key={step.id} step={step} stepNumber={index + 1} />
+        <StepItem
+          key={step.id}
+          step={step}
+          stepNumber={index + 1}
+          isLast={index === steps.length - 1}
+        />
       ))}
     </div>
   );
@@ -21,60 +26,80 @@ export function StepVisualizer({ steps }: StepVisualizerProps) {
 interface StepItemProps {
   step: AuthStep;
   stepNumber: number;
+  isLast?: boolean;
 }
 
 /**
  * Individual step item with status icon, label, and description.
  */
-function StepItem({ step, stepNumber }: StepItemProps) {
+function StepItem({ step, stepNumber, isLast }: StepItemProps) {
   const isPending = step.status === "pending";
   const isError = step.status === "error";
   const isInProgress = step.status === "in_progress";
 
   return (
-    <div>
-      {/* Main row: number, icon, label */}
-      <div className="flex items-center gap-3">
-        <span
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-            isPending
-              ? "bg-muted text-muted-foreground"
-              : isError
-                ? "bg-destructive/20 text-destructive"
-                : isInProgress
-                  ? "bg-primary/20 text-primary"
-                  : "bg-green-500/20 text-green-600 dark:text-green-400"
+    <div className="relative pb-6 last:pb-0">
+      {/* Connector Line */}
+      {!isLast && (
+        <div
+          className={`absolute top-6 left-3 h-full w-0.5 -translate-x-1/2 ${
+            isPending ? "bg-muted" : "bg-primary/20"
           }`}
-        >
-          {stepNumber}
-        </span>
-        <StatusIcon status={step.status} />
-        <span
-          className={`font-medium ${
-            isPending
-              ? "text-muted-foreground"
-              : isError
-                ? "text-destructive"
-                : "text-foreground"
-          }`}
-        >
-          {step.label}
-        </span>
-        {isInProgress && (
-          <Badge variant="outline" className="text-xs">
-            Processing...
-          </Badge>
-        )}
-      </div>
+        />
+      )}
 
-      {/* Description row: left-aligned */}
-      <p
-        className={`mt-1 text-sm ${
-          isPending ? "text-muted-foreground/60" : "text-muted-foreground"
-        }`}
-      >
-        {step.detail || step.description}
-      </p>
+      {/* Main row: number, icon, label */}
+      <div className="flex items-start gap-3">
+        <div className="relative z-10">
+          <span
+            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${
+              isPending
+                ? "bg-muted text-muted-foreground"
+                : isError
+                  ? "bg-destructive text-destructive-foreground"
+                  : isInProgress
+                    ? "bg-primary animate-pulse text-primary-foreground"
+                    : "bg-green-500 text-white"
+            }`}
+          >
+            {stepNumber}
+          </span>
+        </div>
+
+        <div className="flex-1 space-y-1">
+          <div className="flex items-center gap-2">
+            <StatusIcon status={step.status} />
+            <span
+              className={`text-sm font-semibold transition-colors ${
+                isPending
+                  ? "text-muted-foreground"
+                  : isError
+                    ? "text-destructive"
+                    : "text-foreground"
+              }`}
+            >
+              {step.label}
+            </span>
+            {isInProgress && (
+              <Badge
+                variant="outline"
+                className="bg-primary/5 animate-pulse text-[10px] py-0 h-4"
+              >
+                Processing...
+              </Badge>
+            )}
+          </div>
+
+          {/* Description: left-aligned */}
+          <p
+            className={`text-xs leading-relaxed transition-colors ${
+              isPending ? "text-muted-foreground/60" : "text-muted-foreground"
+            }`}
+          >
+            {step.detail || step.description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -107,7 +132,7 @@ function StatusIcon({ status }: StatusIconProps) {
     case "error":
       return (
         <svg
-          className="h-4 w-4 text-destructive"
+          className="text-destructive h-4 w-4"
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
@@ -123,7 +148,7 @@ function StatusIcon({ status }: StatusIconProps) {
     case "in_progress":
       return (
         <svg
-          className="h-4 w-4 animate-spin text-primary"
+          className="text-primary h-4 w-4 animate-spin"
           fill="none"
           viewBox="0 0 24 24"
         >
@@ -146,7 +171,7 @@ function StatusIcon({ status }: StatusIconProps) {
     default:
       return (
         <svg
-          className="h-4 w-4 text-muted-foreground"
+          className="text-muted-foreground h-4 w-4"
           fill="none"
           stroke="currentColor"
           strokeWidth={2}

@@ -137,14 +137,22 @@ function ProfilePage() {
 function AppRoutes() {
   const { isAuthenticated } = useUser();
 
-  if (!isAuthenticated) {
-    return <AuthPage />;
-  }
-
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/profile" element={<ProfilePage />} />
+      {/* Public route (can be visited when authenticated to see success state) */}
+      <Route path="/auth" element={<AuthPage />} />
+
+      {/* Protected routes */}
+      <Route
+        path="/"
+        element={isAuthenticated ? <HomePage /> : <Navigate to="/auth" replace />}
+      />
+      <Route
+        path="/profile"
+        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />}
+      />
+
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

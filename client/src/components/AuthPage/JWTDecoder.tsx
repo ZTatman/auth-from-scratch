@@ -36,9 +36,7 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
 
   if (!decoded) {
     return (
-      <div className="text-sm text-destructive">
-        Invalid JWT token format
-      </div>
+      <div className="text-destructive text-sm">Invalid JWT token format</div>
     );
   }
 
@@ -47,15 +45,15 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
       {/* Raw Token */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">
+          <span className="text-muted-foreground text-xs font-medium">
             Raw Token:
           </span>
           <Button variant="ghost" size="sm" onClick={handleCopy}>
             {copied ? "Copied!" : "Copy"}
           </Button>
         </div>
-        <div className="overflow-x-auto rounded-md bg-muted p-2">
-          <code className="break-all text-xs">
+        <div className="bg-muted overflow-x-auto rounded-md p-2">
+          <code className="text-xs break-all">
             <span className="text-red-500">{parts[0]}</span>
             <span className="text-muted-foreground">.</span>
             <span className="text-purple-500">{parts[1]}</span>
@@ -63,7 +61,7 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
             <span className="text-blue-500">{parts[2]}</span>
           </code>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-xs">
           <span className="text-red-500">Header</span>
           {" · "}
           <span className="text-purple-500">Payload</span>
@@ -86,7 +84,7 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
           </AccordionTrigger>
           <AccordionContent>
             <JsonBlock data={decoded.header} />
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-xs">
               The header specifies the algorithm used to sign the token (e.g.,
               HS256) and the token type (JWT).
             </p>
@@ -110,13 +108,13 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
             <JsonBlock data={decoded.payload} />
             <div className="mt-2 space-y-1">
               {typeof decoded.payload.exp === "number" && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   <strong>exp:</strong> Token expires at{" "}
                   {new Date(decoded.payload.exp * 1000).toLocaleString()}
                 </p>
               )}
               {typeof decoded.payload.iat === "number" && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   <strong>iat:</strong> Token issued at{" "}
                   {new Date(decoded.payload.iat * 1000).toLocaleString()}
                 </p>
@@ -136,10 +134,10 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <pre className="overflow-x-auto rounded-md bg-muted p-2 text-xs">
+            <pre className="bg-muted overflow-x-auto rounded-md p-2 text-xs">
               {decoded.signature}
             </pre>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-xs">
               The signature is created by signing the encoded header and payload
               with a secret key. The server uses this to verify the token hasn't
               been tampered with.
@@ -150,7 +148,7 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
 
       {/* Educational Note */}
       <div className="rounded-md border border-dashed p-3">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           <strong>Security Note:</strong> JWTs are not encrypted - anyone can
           decode the header and payload. Never store sensitive data in a JWT.
           The signature only ensures the token hasn't been modified.

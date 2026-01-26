@@ -62,7 +62,7 @@ export function StorageInspector() {
         <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Badge variant="outline">localStorage</Badge>
-            <code className="text-xs text-muted-foreground">
+            <code className="text-muted-foreground text-xs">
               {AUTH_TOKEN_KEY}
             </code>
           </div>
@@ -74,19 +74,19 @@ export function StorageInspector() {
         {storedToken ? (
           <div className="mt-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Current value:
               </span>
               <Button variant="ghost" size="sm" onClick={handleCopy}>
                 {copied ? "Copied!" : "Copy"}
               </Button>
             </div>
-            <pre className="mt-1 overflow-x-auto rounded-md bg-muted p-2 text-xs">
+            <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 text-xs">
               {truncatedToken}
             </pre>
           </div>
         ) : (
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-xs">
             No token stored. Login to see the token here.
           </p>
         )}
@@ -99,18 +99,18 @@ export function StorageInspector() {
             Why localStorage?
           </AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-3 text-xs text-muted-foreground">
+            <div className="text-muted-foreground space-y-3 text-xs">
               <p>
                 <strong>localStorage</strong> is a simple key-value storage in
                 the browser that persists across sessions. For this educational
                 demo, we use it because:
               </p>
-              <ul className="list-inside list-disc space-y-1 pl-2">
+              <ul className="space-y-1 text-center">
                 <li>Simple to implement and understand</li>
                 <li>Token persists after browser refresh</li>
                 <li>Easy to inspect in browser DevTools</li>
               </ul>
-              <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-2">
+              <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-2 text-center">
                 <p className="font-medium text-amber-700 dark:text-amber-400">
                   Security Note:
                 </p>
@@ -177,18 +177,16 @@ export function StorageInspector() {
             View in DevTools
           </AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-2 text-xs text-muted-foreground">
+            <div className="text-muted-foreground space-y-2 text-xs text-center">
               <p>To view the stored token in your browser:</p>
-              <ol className="list-inside list-decimal space-y-1 pl-2">
+              <ol className="space-y-1">
                 <li>Open DevTools (F12 or Cmd+Option+I)</li>
                 <li>Go to Application tab (Chrome) or Storage tab (Firefox)</li>
                 <li>Expand "Local Storage" in the sidebar</li>
+                <li>Click on your site's origin (e.g., localhost:3000)</li>
                 <li>
-                  Click on your site's origin (e.g., localhost:3000)
-                </li>
-                <li>
-                  Find the <code className="rounded bg-muted px-1">auth_token</code>{" "}
-                  key
+                  Find the{" "}
+                  <code className="bg-muted rounded px-1">auth_token</code> key
                 </li>
               </ol>
             </div>
@@ -207,12 +205,12 @@ interface StorageOptionProps {
 
 function StorageOption({ name, pros, cons }: StorageOptionProps) {
   return (
-    <div className="rounded-md border p-2">
-      <p className="font-medium text-foreground">{name}</p>
+    <div className="rounded-md border p-2 text-center">
+      <p className="text-foreground font-medium">{name}</p>
       <div className="mt-1 grid grid-cols-2 gap-2">
         <div>
           <p className="text-green-600 dark:text-green-400">Pros:</p>
-          <ul className="list-inside list-disc text-muted-foreground">
+          <ul className="text-muted-foreground">
             {pros.map((pro, i) => (
               <li key={i}>{pro}</li>
             ))}
@@ -220,7 +218,7 @@ function StorageOption({ name, pros, cons }: StorageOptionProps) {
         </div>
         <div>
           <p className="text-destructive">Cons:</p>
-          <ul className="list-inside list-disc text-muted-foreground">
+          <ul className="text-muted-foreground">
             {cons.map((con, i) => (
               <li key={i}>{con}</li>
             ))}

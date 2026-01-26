@@ -180,7 +180,7 @@ export function AuthForm({
               type="button"
               variant="ghost"
               size="sm"
-              className="absolute right-1 top-1/2 h-7 -translate-y-1/2 text-xs"
+              className="absolute top-1/2 right-1 h-7 -translate-y-1/2 text-xs"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? "Hide" : "Show"}
@@ -217,7 +217,7 @@ export function AuthForm({
                   </>
                 ) : (
                   <>
-                    <XIcon className="h-3.5 w-3.5 text-destructive" />
+                    <XIcon className="text-destructive h-3.5 w-3.5" />
                     <span className="text-destructive">
                       Passwords do not match
                     </span>
@@ -270,16 +270,32 @@ interface PasswordRequirementsProps {
  */
 function PasswordRequirements({ validation }: PasswordRequirementsProps) {
   const requirements = [
-    { key: "minLength", ...PASSWORD_REQUIREMENTS.minLength, met: validation.minLength },
-    { key: "uppercase", ...PASSWORD_REQUIREMENTS.uppercase, met: validation.uppercase },
-    { key: "lowercase", ...PASSWORD_REQUIREMENTS.lowercase, met: validation.lowercase },
+    {
+      key: "minLength",
+      ...PASSWORD_REQUIREMENTS.minLength,
+      met: validation.minLength,
+    },
+    {
+      key: "uppercase",
+      ...PASSWORD_REQUIREMENTS.uppercase,
+      met: validation.uppercase,
+    },
+    {
+      key: "lowercase",
+      ...PASSWORD_REQUIREMENTS.lowercase,
+      met: validation.lowercase,
+    },
     { key: "number", ...PASSWORD_REQUIREMENTS.number, met: validation.number },
-    { key: "specialChar", ...PASSWORD_REQUIREMENTS.specialChar, met: validation.specialChar },
+    {
+      key: "specialChar",
+      ...PASSWORD_REQUIREMENTS.specialChar,
+      met: validation.specialChar,
+    },
   ];
 
   return (
     <div className="rounded-md border border-dashed p-3">
-      <p className="mb-2 text-xs font-medium text-muted-foreground">
+      <p className="text-muted-foreground mb-2 text-xs font-medium">
         Password requirements:
       </p>
       <ul className="space-y-1">
@@ -288,7 +304,7 @@ function PasswordRequirements({ validation }: PasswordRequirementsProps) {
             {req.met ? (
               <CheckIcon className="h-3.5 w-3.5 text-green-500" />
             ) : (
-              <XIcon className="h-3.5 w-3.5 text-muted-foreground" />
+              <XIcon className="text-muted-foreground h-3.5 w-3.5" />
             )}
             <span
               className={req.met ? "text-green-600" : "text-muted-foreground"}

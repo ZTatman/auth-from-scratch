@@ -5,16 +5,37 @@ interface GenerateCredentialsSectionProps {
   onCredentialsGenerated: (username: string, password: string) => void;
 }
 
-export function GenerateCredentialsSection({ onCredentialsGenerated }: GenerateCredentialsSectionProps) {
+export function GenerateCredentialsSection({
+  onCredentialsGenerated,
+}: GenerateCredentialsSectionProps) {
   const [generatedCredentials, setGeneratedCredentials] = useState<{
     username: string;
     password: string;
   } | null>(null);
 
   const generateRandomCredentials = () => {
-    const adjectives = ["Happy", "Clever", "Bright", "Swift", "Bold", "Calm", "Wise", "Brave"];
-    const nouns = ["Panda", "Tiger", "Eagle", "Dolphin", "Falcon", "Wolf", "Fox", "Bear"];
-    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const adjectives = [
+      "Happy",
+      "Clever",
+      "Bright",
+      "Swift",
+      "Bold",
+      "Calm",
+      "Wise",
+      "Brave",
+    ];
+    const nouns = [
+      "Panda",
+      "Tiger",
+      "Eagle",
+      "Dolphin",
+      "Falcon",
+      "Wolf",
+      "Fox",
+      "Bear",
+    ];
+    const randomAdjective =
+      adjectives[Math.floor(Math.random() * adjectives.length)];
     const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
     const randomNumber = Math.floor(Math.random() * 1000);
     const username = `${randomAdjective}${randomNoun}${randomNumber}`;
@@ -53,14 +74,17 @@ export function GenerateCredentialsSection({ onCredentialsGenerated }: GenerateC
     const remainingLength = 12 - requiredChars.length;
     const randomChars = Array.from(
       { length: remainingLength },
-      () => allChars[Math.floor(Math.random() * allChars.length)]
+      () => allChars[Math.floor(Math.random() * allChars.length)],
     );
 
     // Combine and shuffle to randomize positions
     const allPasswordChars = [...requiredChars, ...randomChars];
     for (let i = allPasswordChars.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [allPasswordChars[i], allPasswordChars[j]] = [allPasswordChars[j], allPasswordChars[i]];
+      [allPasswordChars[i], allPasswordChars[j]] = [
+        allPasswordChars[j],
+        allPasswordChars[i],
+      ];
     }
 
     return allPasswordChars.join("");

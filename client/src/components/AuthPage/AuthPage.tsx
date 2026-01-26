@@ -1,7 +1,11 @@
 import { useState, useCallback } from "react";
 
 // Types
-import type { LoginResponse, RegisterResponse, SafeUser } from "@app/shared-types";
+import type {
+  LoginResponse,
+  RegisterResponse,
+  SafeUser,
+} from "@app/shared-types";
 import type {
   ActivityLogEntry,
   LoginForm,
@@ -9,7 +13,11 @@ import type {
   AuthFlowEntry,
   AuthStep,
 } from "../../types";
-import { createLoginSteps, createRegisterSteps, generateFlowId } from "../../types";
+import {
+  createLoginSteps,
+  createRegisterSteps,
+  generateFlowId,
+} from "../../types";
 
 // Hooks
 import { useRegister, useUser } from "../../hooks";
@@ -128,7 +136,9 @@ export function AuthPage() {
   const updateFlow = useCallback(
     (flowId: string, updates: Partial<AuthFlowEntry>) => {
       setAuthFlows((prev) =>
-        prev.map((flow) => (flow.id === flowId ? { ...flow, ...updates } : flow)),
+        prev.map((flow) =>
+          flow.id === flowId ? { ...flow, ...updates } : flow,
+        ),
       );
     },
     [],
@@ -266,7 +276,10 @@ export function AuthPage() {
       if (!result.success) {
         // Determine which step failed based on the error
         const errorMsg = result.message.toLowerCase();
-        if (errorMsg.includes("password") || errorMsg.includes("username is required")) {
+        if (
+          errorMsg.includes("password") ||
+          errorMsg.includes("username is required")
+        ) {
           updateFlowStep(flowId, "validate", {
             status: "error",
             detail: result.message,
@@ -355,9 +368,7 @@ export function AuthPage() {
     try {
       // Call API directly instead of using useLogin hook
       // This prevents auto-redirect so user can see the flow
-      const result = await runLoginFlowSteps(flowId, () =>
-        authApi.login(data),
-      );
+      const result = await runLoginFlowSteps(flowId, () => authApi.login(data));
 
       // Update flow with response
       updateFlow(flowId, {
@@ -374,12 +385,16 @@ export function AuthPage() {
       // Also update legacy activity log
       setActivityLog((prev) => [...prev, createLogEntry(result, "login")]);
 
-      // Store pending login - user must click "Continue" to complete
+      // Handle successful login
       if (result.success && result.data.token) {
+        // 1. Set pending login for the banner UI
         setPendingLogin({
           user: result.data.user,
           token: result.data.token,
         });
+        
+        // 2. Immediately update global auth state (so Navbar updates)
+        login(result.data.user, result.data.token);
       }
 
       return result.success;
@@ -485,10 +500,11 @@ export function AuthPage() {
   const handleClearFlows = () => {
     setAuthFlows([]);
     setActivityLog([]);
+    setPendingLogin(null);
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <div className="bg-background flex min-h-screen w-full flex-col">
       {/* Navigation */}
       <NavigationBar />
 

@@ -10,10 +10,7 @@ interface RequestInspectorProps {
 /**
  * Displays request and response details for educational purposes.
  */
-export function RequestInspector({
-  request,
-  response,
-}: RequestInspectorProps) {
+export function RequestInspector({ request, response }: RequestInspectorProps) {
   return (
     <div className="space-y-4 text-sm">
       {/* Request Section */}
@@ -21,12 +18,12 @@ export function RequestInspector({
         <div>
           <div className="mb-2 flex items-center gap-2">
             <Badge variant="outline">{request.method}</Badge>
-            <code className="text-xs text-muted-foreground">{request.url}</code>
+            <code className="text-muted-foreground text-xs">{request.url}</code>
           </div>
 
           {/* Headers */}
           <div className="mb-2">
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-muted-foreground text-xs font-medium">
               Headers:
             </span>
             <JsonBlock data={request.headers} className="mt-1" />
@@ -34,11 +31,11 @@ export function RequestInspector({
 
           {/* Request Body */}
           <div>
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-muted-foreground text-xs font-medium">
               Request Body:
             </span>
             <JsonBlock data={request.body} className="mt-1" />
-            <p className="mt-1 text-xs italic text-muted-foreground">
+            <p className="text-muted-foreground mt-1 text-xs italic">
               Note: Password masked as "***" for security
             </p>
           </div>
@@ -49,19 +46,17 @@ export function RequestInspector({
       {response && (
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <Badge
-              variant={response.status < 400 ? "default" : "destructive"}
-            >
+            <Badge variant={response.status < 400 ? "default" : "destructive"}>
               {response.status}
             </Badge>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               {response.statusText}
             </span>
           </div>
 
           {/* Response Body */}
           <div>
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-muted-foreground text-xs font-medium">
               Response Body:
             </span>
             <JsonBlock
@@ -75,7 +70,7 @@ export function RequestInspector({
 
       {/* Educational Note */}
       <div className="rounded-md border border-dashed p-3">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           <strong>What's happening:</strong> The client sends an HTTP request to
           the server with credentials. The server validates the input, checks
           the database, and returns a response. For login, the response includes
