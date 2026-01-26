@@ -19,11 +19,51 @@ export function GenerateCredentialsSection({ onCredentialsGenerated }: GenerateC
     const randomNumber = Math.floor(Math.random() * 1000);
     const username = `${randomAdjective}${randomNoun}${randomNumber}`;
 
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    const password = Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    // Generate password that meets all requirements
+    const password = generateSecurePassword();
 
     setGeneratedCredentials({ username, password });
     onCredentialsGenerated(username, password);
+  };
+
+  /**
+   * Generate a password that meets all validation requirements:
+   * - At least 8 characters
+   * - At least one uppercase letter
+   * - At least one lowercase letter
+   * - At least one number
+   * - At least one special character (@$!%*?&)
+   */
+  const generateSecurePassword = (): string => {
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+    const special = "@$!%*?&";
+    const allChars = uppercase + lowercase + numbers + special;
+
+    // Start with one character from each required category
+    const requiredChars = [
+      uppercase[Math.floor(Math.random() * uppercase.length)],
+      lowercase[Math.floor(Math.random() * lowercase.length)],
+      numbers[Math.floor(Math.random() * numbers.length)],
+      special[Math.floor(Math.random() * special.length)],
+    ];
+
+    // Fill remaining characters (12 total - 4 required = 8 random)
+    const remainingLength = 12 - requiredChars.length;
+    const randomChars = Array.from(
+      { length: remainingLength },
+      () => allChars[Math.floor(Math.random() * allChars.length)]
+    );
+
+    // Combine and shuffle to randomize positions
+    const allPasswordChars = [...requiredChars, ...randomChars];
+    for (let i = allPasswordChars.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allPasswordChars[i], allPasswordChars[j]] = [allPasswordChars[j], allPasswordChars[i]];
+    }
+
+    return allPasswordChars.join("");
   };
 
   return (
