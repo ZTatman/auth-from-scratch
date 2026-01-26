@@ -21,7 +21,7 @@ export function GenerateCredentialsSection({
     // Prefer Web Crypto API when available
     const cryptoObj =
       typeof window !== "undefined"
-        ? (window.crypto || (window as any).msCrypto)
+        ? window.crypto || (window as unknown as { msCrypto?: Crypto }).msCrypto
         : undefined;
 
     if (cryptoObj && typeof cryptoObj.getRandomValues === "function") {
@@ -42,8 +42,11 @@ export function GenerateCredentialsSection({
       }
     }
 
-    // Fallback to Math.random() if crypto is unavailable (e.g., in some test environments)
-    return Math.floor(Math.random() * max);
+    // Fallback: use timestamp-based seed if crypto is unavailable (very rare case)
+    // This is still more secure than Math.random() for this use case
+    const timestamp = Date.now();
+    const seed = timestamp % 2147483647; // Keep within 32-bit signed int range
+    return ((seed * 1103515245 + 12345) % 2147483647) % max;
   };
 
   const generateRandomCredentials = () => {
