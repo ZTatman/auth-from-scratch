@@ -32,70 +32,54 @@ function StepItem({ step, stepNumber }: StepItemProps) {
   const isInProgress = step.status === "in_progress";
 
   return (
-    <div
-      className={`rounded-md border p-3 transition-all ${
-        isInProgress
-          ? "border-primary bg-primary/5"
-          : isPending
-            ? "border-muted bg-muted/30"
+    <div className="flex items-start gap-3">
+      {/* Step number */}
+      <span
+        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+          isPending
+            ? "bg-muted text-muted-foreground"
             : isError
-              ? "border-destructive/50 bg-destructive/5"
-              : "border-green-500/50 bg-green-500/5"
-      }`}
-    >
-      {/* Header row: step number, icon, label, badge */}
-      <div className="flex items-center gap-3">
-        <span
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-            isPending
-              ? "bg-muted text-muted-foreground"
-              : isError
-                ? "bg-destructive/20 text-destructive"
-                : isInProgress
-                  ? "bg-primary/20 text-primary"
-                  : "bg-green-500/20 text-green-600 dark:text-green-400"
-          }`}
-        >
-          {stepNumber}
-        </span>
+              ? "bg-destructive/20 text-destructive"
+              : isInProgress
+                ? "bg-primary/20 text-primary"
+                : "bg-green-500/20 text-green-600 dark:text-green-400"
+        }`}
+      >
+        {stepNumber}
+      </span>
+
+      {/* Status icon */}
+      <div className="mt-0.5">
         <StatusIcon status={step.status} />
-        <span
-          className={`font-medium ${
-            isPending
-              ? "text-muted-foreground"
-              : isError
-                ? "text-destructive"
-                : "text-foreground"
-          }`}
-        >
-          {step.label}
-        </span>
-        {isInProgress && (
-          <Badge variant="outline" className="ml-auto text-xs">
-            Processing...
-          </Badge>
-        )}
       </div>
 
-      {/* Description row */}
-      <div className="mt-2 pl-9">
-        <p
-          className={`text-sm ${
-            isPending ? "text-muted-foreground/70" : "text-muted-foreground"
-          }`}
-        >
-          {step.description}
-        </p>
-        {/* Dynamic detail (e.g., error message or additional info) */}
-        {step.detail && (
-          <p
-            className={`mt-1 text-xs font-medium ${
-              isError ? "text-destructive" : "text-primary"
+      {/* Label and description */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span
+            className={`font-medium ${
+              isPending
+                ? "text-muted-foreground"
+                : isError
+                  ? "text-destructive"
+                  : "text-foreground"
             }`}
           >
-            → {step.detail}
-          </p>
-        )}
+            {step.label}
+          </span>
+          {isInProgress && (
+            <Badge variant="outline" className="text-xs">
+              Processing...
+            </Badge>
+          )}
+        </div>
+        <p
+          className={`text-sm ${
+            isPending ? "text-muted-foreground/60" : "text-muted-foreground"
+          }`}
+        >
+          {step.detail || step.description}
+        </p>
       </div>
     </div>
   );
