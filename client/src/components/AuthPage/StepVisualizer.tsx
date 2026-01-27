@@ -58,7 +58,7 @@ function StepItem({ step, stepNumber, isLast }: StepItemProps) {
                 : isError
                   ? "bg-destructive text-destructive-foreground"
                   : isInProgress
-                    ? "bg-primary animate-pulse text-primary-foreground"
+                    ? "bg-primary text-primary-foreground animate-pulse"
                     : "bg-green-500 text-white"
             }`}
           >
@@ -83,7 +83,7 @@ function StepItem({ step, stepNumber, isLast }: StepItemProps) {
             {isInProgress && (
               <Badge
                 variant="outline"
-                className="bg-primary/5 animate-pulse text-[10px] py-0 h-4"
+                className="bg-primary/5 h-4 animate-pulse py-0 text-[10px]"
               >
                 Processing...
               </Badge>

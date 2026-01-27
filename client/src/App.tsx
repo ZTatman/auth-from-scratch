@@ -145,11 +145,15 @@ function AppRoutes() {
       {/* Protected routes */}
       <Route
         path="/"
-        element={isAuthenticated ? <HomePage /> : <Navigate to="/auth" replace />}
+        element={
+          isAuthenticated ? <HomePage /> : <Navigate to="/auth" replace />
+        }
       />
       <Route
         path="/profile"
-        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />}
+        element={
+          isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />
+        }
       />
 
       {/* Catch-all */}

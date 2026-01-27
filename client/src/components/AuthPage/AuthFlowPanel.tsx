@@ -72,7 +72,7 @@ export function AuthFlowPanel({
 
       {/* Pending Login Banner */}
       {pendingLogin && onContinueLogin && (
-        <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-500 rounded-xl border-2 border-green-500/30 bg-green-500/5 p-5 shadow-lg shadow-green-500/5">
+        <div className="animate-in fade-in slide-in-from-top-4 mb-6 rounded-xl border-2 border-green-500/30 bg-green-500/5 p-5 shadow-lg shadow-green-500/5 duration-500">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white shadow-md shadow-green-500/20">
@@ -100,15 +100,19 @@ export function AuthFlowPanel({
               </div>
             </div>
             <div className="hidden sm:block">
-              <Badge variant="outline" className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400">
+              <Badge
+                variant="outline"
+                className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
+              >
                 Session Ready
               </Badge>
             </div>
           </div>
-          
+
           <p className="text-muted-foreground mb-0 text-sm leading-relaxed">
-            All steps completed successfully. Your JWT token has been generated and stored. 
-            Review the flow details below or proceed to your dashboard.
+            All steps completed successfully. Your JWT token has been generated
+            and stored. Review the flow details below or proceed to your
+            dashboard.
           </p>
         </div>
       )}
@@ -146,14 +150,15 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
   const typeLabel = flow.type === "login" ? "Login" : "Register";
 
   // Auto-expand request/response if it's the active flow or just finished with an error
-  const defaultExpanded = isActive || flow.status === "error" ? ["request"] : [];
+  const defaultExpanded =
+    isActive || flow.status === "error" ? ["request"] : [];
   if (flow.token) defaultExpanded.push("token");
 
   return (
     <div
       className={`bg-card group relative overflow-hidden rounded-lg border transition-all duration-300 ${
         isActive
-          ? "border-primary shadow-primary/10 ring-primary/20 scale-[1.02] z-10 shadow-lg ring-4"
+          ? "border-primary shadow-primary/10 ring-primary/20 z-10 scale-[1.02] shadow-lg ring-4"
           : "hover:border-muted-foreground/30 opacity-90 shadow-sm"
       }`}
     >
@@ -187,7 +192,7 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
               </Badge>
             )}
           </div>
-          <span className="text-muted-foreground text-[10px] font-medium uppercase tracking-wider">
+          <span className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
             {new Date(flow.timestamp).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -206,8 +211,8 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
           <div
             className={`mt-4 rounded-md p-3 text-xs font-medium ${
               flow.status === "error"
-                ? "bg-destructive/10 text-destructive border border-destructive/20"
-                : "bg-green-500/10 text-green-700 border border-green-500/20 dark:text-green-400"
+                ? "bg-destructive/10 text-destructive border-destructive/20 border"
+                : "border border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-400"
             }`}
           >
             {flow.message}
@@ -223,7 +228,7 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
           {/* Request/Response Inspector */}
           {(flow.request || flow.response) && (
             <AccordionItem value="request" className="border-none">
-              <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs transition-colors no-underline">
+              <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs no-underline transition-colors">
                 Request / Response Details
               </AccordionTrigger>
               <AccordionContent className="pt-2">
@@ -238,7 +243,7 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
           {/* JWT Decoder (only for successful login) */}
           {flow.token && (
             <AccordionItem value="token" className="border-none">
-              <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs transition-colors no-underline">
+              <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs no-underline transition-colors">
                 JWT Token Details
               </AccordionTrigger>
               <AccordionContent className="pt-2">

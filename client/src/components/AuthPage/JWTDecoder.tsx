@@ -20,6 +20,24 @@ interface DecodedJWT {
 }
 
 /**
+ * Decode a JWT token into its parts.
+ */
+function decodeJWT(token: string): DecodedJWT | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+
+    const header = JSON.parse(atob(parts[0]));
+    const payload = JSON.parse(atob(parts[1]));
+    const signature = parts[2];
+
+    return { header, payload, signature };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Decodes and displays JWT token structure for educational purposes.
  */
 export function JWTDecoder({ token }: JWTDecoderProps) {
@@ -156,22 +174,4 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
       </div>
     </div>
   );
-}
-
-/**
- * Decode a JWT token into its parts.
- */
-function decodeJWT(token: string): DecodedJWT | null {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
-
-    const header = JSON.parse(atob(parts[0]));
-    const payload = JSON.parse(atob(parts[1]));
-    const signature = parts[2];
-
-    return { header, payload, signature };
-  } catch {
-    return null;
-  }
 }

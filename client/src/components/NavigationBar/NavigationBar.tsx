@@ -46,7 +46,9 @@ export function NavigationBar() {
               >
                 <div className="border-b border-gray-100 px-4 py-2 text-xs text-gray-500">
                   Signed in as <br />
-                  <span className="font-bold text-gray-900">{user.username}</span>
+                  <span className="font-bold text-gray-900">
+                    {user.username}
+                  </span>
                 </div>
                 <Link
                   to="/profile"

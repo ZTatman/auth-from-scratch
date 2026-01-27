@@ -177,7 +177,7 @@ export function StorageInspector() {
             View in DevTools
           </AccordionTrigger>
           <AccordionContent>
-            <div className="text-muted-foreground space-y-2 text-xs text-center">
+            <div className="text-muted-foreground space-y-2 text-center text-xs">
               <p>To view the stored token in your browser:</p>
               <ol className="space-y-1">
                 <li>Open DevTools (F12 or Cmd+Option+I)</li>
