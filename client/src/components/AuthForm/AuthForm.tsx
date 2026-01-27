@@ -1,7 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+
+// Zod validation
+import {
+  PASSWORD_REQUIREMENTS,
+  checkPasswordRequirements,
+} from "@app/shared-types";
 
 // Types
 import type { ActivityLogEntry, LoginForm, RegisterForm } from "../../types";
+
+// shadcn components
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 // Components
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
@@ -34,6 +45,8 @@ interface AuthFormProps {
  * In register mode it calls `onRegister` when passwords match; when they don't, it appends an
  * error entry to `setActivityLog`.
  *
+ * Features inline password requirement hints that update in real-time as the user types.
+ *
  * @param onLogin - Called with `{ username, password }` when submitting in login mode; should return `true` on successful authentication.
  * @param onRegister - Called with `{ username, password, confirmPassword }` when submitting in register mode.
  * @param setActivityLog - State updater for appending activity log entries (used to record registration errors).
@@ -47,6 +60,17 @@ export function AuthForm({
   const [isLoginMode, setIsLoginMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<FormState>(initialFormData);
+
+  // Check password requirements in real-time
+  const passwordValidation = useMemo(
+    () => checkPasswordRequirements(formData.password),
+    [formData.password],
+  );
+
+  // Check if passwords match
+  const passwordsMatch =
+    formData.password === formData.confirmPassword &&
+    formData.confirmPassword !== "";
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -111,11 +135,9 @@ export function AuthForm({
       formData.confirmPassword !== "");
 
   return (
-    <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-md">
-      <h1 className="mb-8 text-center text-3xl font-bold text-gray-800">
-        Example Auth Login Page
-      </h1>
-      <div className="mb-6 flex justify-center">
+    <div className="space-y-6">
+      {/* Mode Toggle */}
+      <div className="flex justify-center">
         <ToggleSwitch
           checked={isLoginMode}
           onChange={setIsLoginMode}
@@ -123,71 +145,111 @@ export function AuthForm({
           rightLabel="Login"
         />
       </div>
+
       <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
-        <InputField
-          label="Username"
-          type="text"
-          name="username"
-          placeholder="Enter your username"
-          value={formData.username}
-          onChange={handleChange}
-          required
-        />
-        <InputField
-          className="relative"
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          name="password"
-          placeholder="Enter your password"
-          value={formData.password}
-          onChange={handleChange}
-          minLength={6}
-          autoComplete="new-password"
-          required
-        >
-          <button
-            type="button"
-            className="absolute top-1/2 right-3 text-gray-500 transition-colors duration-200 hover:text-gray-700"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
-        </InputField>
-        {!isLoginMode && (
-          <InputField
-            label="Confirm Password"
-            type={showPassword ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
+        {/* Username Field */}
+        <div className="space-y-2">
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="Enter your username"
+            value={formData.username}
             onChange={handleChange}
-            minLength={6}
-            autoComplete="new-password"
             required
           />
+        </div>
+
+        {/* Password Field */}
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete="new-password"
+              required
+              className="pr-16"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute top-1/2 right-1 h-7 -translate-y-1/2 text-xs"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </Button>
+          </div>
+
+          {/* Password Requirements Hints (only in register mode) */}
+          {!isLoginMode && formData.password.length > 0 && (
+            <PasswordRequirements validation={passwordValidation} />
+          )}
+        </div>
+
+        {/* Confirm Password Field (only in register mode) */}
+        {!isLoginMode && (
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              autoComplete="new-password"
+              required
+            />
+            {/* Password match indicator */}
+            {formData.confirmPassword.length > 0 && (
+              <div className="flex items-center gap-2 text-xs">
+                {passwordsMatch ? (
+                  <>
+                    <CheckIcon className="h-3.5 w-3.5 text-green-500" />
+                    <span className="text-green-600">Passwords match</span>
+                  </>
+                ) : (
+                  <>
+                    <XIcon className="text-destructive h-3.5 w-3.5" />
+                    <span className="text-destructive">
+                      Passwords do not match
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         )}
+
+        {/* Generate Credentials Section (only in register mode) */}
         {!isLoginMode && (
           <GenerateCredentialsSection
             onCredentialsGenerated={handleCredentialsGenerated}
           />
         )}
-        <div className="flex items-center justify-between gap-3">
-          <button
-            disabled={isDisabled}
-            type="submit"
-            className="w-full rounded-md bg-blue-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
+
+        {/* Form Actions */}
+        <div className="flex items-center gap-3 pt-2">
+          <Button type="submit" disabled={isDisabled} className="flex-1">
             {isLoginMode ? "Login" : "Register"}
-          </button>
+          </Button>
           {!isLoginMode && (
-            <button
+            <Button
               type="button"
+              variant="outline"
               disabled={!isResetFormEnabled}
               onClick={clearFormData}
-              className="w-full rounded-md bg-gray-500 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1"
             >
               Clear Form
-            </button>
+            </Button>
           )}
         </div>
       </form>
@@ -195,54 +257,99 @@ export function AuthForm({
   );
 }
 
-interface InputFieldProps {
-  label: string;
-  type: string;
-  name: string;
-  placeholder: string;
-  value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  required: boolean;
-  minLength?: number;
-  children?: React.ReactNode;
-  className?: string;
-  autoComplete?: string;
+// ============================================
+// Password Requirements Component
+// ============================================
+
+interface PasswordRequirementsProps {
+  validation: ReturnType<typeof checkPasswordRequirements>;
 }
 
-function InputField({
-  label,
-  type,
-  name,
-  placeholder,
-  value,
-  onChange,
-  required,
-  minLength,
-  children,
-  className,
-  autoComplete,
-}: InputFieldProps) {
+/**
+ * Displays password requirements with real-time checkmark/X indicators.
+ */
+function PasswordRequirements({ validation }: PasswordRequirementsProps) {
+  const requirements = [
+    {
+      key: "minLength",
+      ...PASSWORD_REQUIREMENTS.minLength,
+      met: validation.minLength,
+    },
+    {
+      key: "uppercase",
+      ...PASSWORD_REQUIREMENTS.uppercase,
+      met: validation.uppercase,
+    },
+    {
+      key: "lowercase",
+      ...PASSWORD_REQUIREMENTS.lowercase,
+      met: validation.lowercase,
+    },
+    { key: "number", ...PASSWORD_REQUIREMENTS.number, met: validation.number },
+    {
+      key: "specialChar",
+      ...PASSWORD_REQUIREMENTS.specialChar,
+      met: validation.specialChar,
+    },
+  ];
+
   return (
-    <div className={className}>
-      <label
-        htmlFor={name}
-        className="mb-1 block text-left text-sm font-medium text-gray-700"
-      >
-        {label}
-      </label>
-      <input
-        id={name}
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        required={required}
-        minLength={minLength}
-        autoComplete={autoComplete || "off"}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-      />
-      {children}
+    <div className="rounded-md border border-dashed p-3">
+      <p className="text-muted-foreground mb-2 text-xs font-medium">
+        Password requirements:
+      </p>
+      <ul className="space-y-1">
+        {requirements.map((req) => (
+          <li key={req.key} className="flex items-center gap-2 text-xs">
+            {req.met ? (
+              <CheckIcon className="h-3.5 w-3.5 text-green-500" />
+            ) : (
+              <XIcon className="text-muted-foreground h-3.5 w-3.5" />
+            )}
+            <span
+              className={req.met ? "text-green-600" : "text-muted-foreground"}
+            >
+              {req.message}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
+  );
+}
+
+// ============================================
+// Icon Components
+// ============================================
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+  );
+}
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
+    </svg>
   );
 }
