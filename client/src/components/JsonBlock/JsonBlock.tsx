@@ -13,8 +13,15 @@ interface JsonBlockProps {
 
 /**
  * Renders JSON with proper formatting and syntax highlighting.
+ *
+ * @param props - JSON data, optional max height, and custom className.
+ * @returns Formatted JSON block with syntax highlighting.
  */
-export function JsonBlock({ data, maxHeight, className }: JsonBlockProps) {
+export function JsonBlock({
+  data,
+  maxHeight,
+  className,
+}: JsonBlockProps): React.JSX.Element {
   return (
     <pre
       className={cn(

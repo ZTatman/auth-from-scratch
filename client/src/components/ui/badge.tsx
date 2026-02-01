@@ -5,6 +5,12 @@ import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { badgeVariants } from "./badge-variants";
 
+/**
+ * Badge UI primitive with variant styling and Slot support.
+ *
+ * @param props - Badge props including variant and asChild.
+ * @returns The rendered badge element.
+ */
 function Badge({
   className,
   variant = "default",

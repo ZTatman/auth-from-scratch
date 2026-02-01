@@ -126,6 +126,8 @@ export const REGISTER_FLOW_STEPS: StepDefinition[] = [
 
 /**
  * Create initial steps for a login flow.
+ *
+ * @returns Initial login steps with pending status.
  */
 export function createLoginSteps(): AuthStep[] {
   return LOGIN_FLOW_STEPS.map((step) => ({
@@ -138,6 +140,8 @@ export function createLoginSteps(): AuthStep[] {
 
 /**
  * Create initial steps for a registration flow.
+ *
+ * @returns Initial registration steps with pending status.
  */
 export function createRegisterSteps(): AuthStep[] {
   return REGISTER_FLOW_STEPS.map((step) => ({
@@ -150,7 +154,9 @@ export function createRegisterSteps(): AuthStep[] {
 
 /**
  * Generate a unique ID for an auth flow entry.
+ *
+ * @returns Unique flow identifier string.
  */
 export function generateFlowId(): string {
-  return `flow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `flow-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }

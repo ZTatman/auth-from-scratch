@@ -1,16 +1,16 @@
-import { useMemo } from "react";
+import { useMemo, type ReactElement } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../hooks";
 
 /**
- * Renders the application's top navigation bar with branding and a user menu when signed in.
+ * Renders application's top navigation bar with branding and a user menu when signed in.
  *
- * When a user is authenticated, displays the Avatar as a popover trigger; the popover shows
- * the signed-in username, a link to the profile page, and a "Sign out" button that invokes logout.
+ * When a user is authenticated, displays Avatar as a popover trigger; popover shows
+ * signed-in username, a link to profile page, and a "Sign out" button that invokes logout.
  *
  * @returns The navigation bar element containing the title and conditional user menu
  */
-export function NavigationBar() {
+export function NavigationBar(): ReactElement {
   const { user, isAuthenticated, logout } = useUser();
 
   return (
@@ -115,7 +115,13 @@ interface AvatarProps {
   username: string;
 }
 
-function Avatar({ username }: AvatarProps) {
+/**
+ * Renders user initials in a color derived from the username.
+ *
+ * @param username - Authenticated user's display name.
+ * @returns Avatar circle containing initials.
+ */
+function Avatar({ username }: AvatarProps): ReactElement {
   // Derive a consistent color from the username (same user = same color)
   const color = useMemo(() => {
     let hash = 0;

@@ -2,7 +2,17 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+/**
+ * Input UI primitive with Tailwind styling and state variants.
+ *
+ * @param props - Standard input props.
+ * @returns The rendered input element.
+ */
+function Input({
+  className,
+  type,
+  ...props
+}: React.ComponentProps<"input">): React.JSX.Element {
   return (
     <input
       type={type}

@@ -20,7 +20,10 @@ interface DecodedJWT {
 }
 
 /**
- * Decode a JWT token into its parts.
+ * Decodes a JWT token into its header, payload, and signature parts.
+ *
+ * @param token - The JWT token string to decode.
+ * @returns Decoded JWT object or null if invalid.
  */
 function decodeJWT(token: string): DecodedJWT | null {
   try {
