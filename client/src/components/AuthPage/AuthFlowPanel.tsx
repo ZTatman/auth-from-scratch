@@ -16,17 +16,10 @@ import { RequestInspector } from "./RequestInspector";
 import { JWTDecoder } from "./JWTDecoder";
 import { StorageInspector } from "./StorageInspector";
 
-interface PendingLogin {
-  user: { id: string; username: string; createAt: string };
-  token: string;
-}
-
 interface AuthFlowPanelProps {
   flows: AuthFlowEntry[];
   activeFlowId: string | null;
   onClear: () => void;
-  pendingLogin?: PendingLogin | null;
-  onContinueLogin?: () => void;
 }
 
 /**
@@ -36,8 +29,6 @@ export function AuthFlowPanel({
   flows,
   activeFlowId,
   onClear,
-  pendingLogin,
-  onContinueLogin,
 }: AuthFlowPanelProps) {
   if (flows.length === 0) {
     return (
@@ -69,53 +60,6 @@ export function AuthFlowPanel({
           Clear all
         </Button>
       </div>
-
-      {/* Pending Login Banner */}
-      {pendingLogin && onContinueLogin && (
-        <div className="animate-in fade-in slide-in-from-top-4 mb-6 rounded-xl border-2 border-green-500/30 bg-green-500/5 p-5 shadow-lg shadow-green-500/5 duration-500">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white shadow-md shadow-green-500/20">
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-green-700 dark:text-green-400">
-                  Authentication Verified!
-                </h3>
-                <p className="text-muted-foreground text-xs font-medium">
-                  Welcome back, {pendingLogin.user.username}
-                </p>
-              </div>
-            </div>
-            <div className="hidden sm:block">
-              <Badge
-                variant="outline"
-                className="border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-400"
-              >
-                Session Ready
-              </Badge>
-            </div>
-          </div>
-
-          <p className="text-muted-foreground mb-0 text-sm leading-relaxed">
-            All steps completed successfully. Your JWT token has been generated
-            and stored. Review the flow details below or proceed to your
-            dashboard.
-          </p>
-        </div>
-      )}
 
       {/* Flow entries */}
       <div className="flex-1 space-y-4 overflow-y-auto">

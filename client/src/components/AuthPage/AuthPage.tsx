@@ -1,12 +1,7 @@
 import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Types
-import type {
-  LoginResponse,
-  RegisterResponse,
-  SafeUser,
-} from "@app/shared-types";
+import type { LoginResponse, RegisterResponse } from "@app/shared-types";
 import type {
   ActivityLogEntry,
   LoginForm,
@@ -84,10 +79,6 @@ function createLogEntry(
  * Pending login credentials after successful auth flow.
  * User must click "Continue" to complete the login.
  */
-interface PendingLogin {
-  user: SafeUser;
-  token: string;
-}
 
 /**
  * AuthPage component with split-screen layout.
@@ -96,8 +87,6 @@ interface PendingLogin {
  * Right panel: Authentication flow visualization with step-by-step walkthrough
  */
 export function AuthPage() {
-  const navigate = useNavigate();
-
   // Legacy activity log for backward compatibility (used by AuthForm for validation errors)
   const [, setActivityLog] = useState<ActivityLogEntry[]>([]);
 
@@ -106,10 +95,6 @@ export function AuthPage() {
 
   // Currently active flow (for step animation)
   const [activeFlowId, setActiveFlowId] = useState<string | null>(null);
-
-  // Pending login flow - user is already logged in, but must click "Continue" to navigate to dashboard
-  const [pendingLogin, setPendingLogin] = useState<PendingLogin | null>(null);
-
   const { login } = useUser();
   const registerMutation = useRegister();
 
@@ -392,12 +377,6 @@ export function AuthPage() {
       if (result.success && result.data.token) {
         // 1. Immediately log user in (updates Navbar)
         login(result.data.user, result.data.token);
-
-        // 2. Set pending login for the banner UI and Continue button
-        setPendingLogin({
-          user: result.data.user,
-          token: result.data.token,
-        });
       }
 
       return result.success;
@@ -420,17 +399,6 @@ export function AuthPage() {
       return false;
     } finally {
       setActiveFlowId(null);
-    }
-  };
-
-  /**
-   * Complete the pending login flow and redirect to dashboard.
-   * Note: User is already logged in from handleLogin, this just handles navigation.
-   */
-  const handleContinueLogin = () => {
-    if (pendingLogin) {
-      setPendingLogin(null);
-      navigate("/");
     }
   };
 
@@ -504,7 +472,6 @@ export function AuthPage() {
   const handleClearFlows = () => {
     setAuthFlows([]);
     setActivityLog([]);
-    setPendingLogin(null);
   };
 
   return (
@@ -544,8 +511,6 @@ export function AuthPage() {
               flows={authFlows}
               activeFlowId={activeFlowId}
               onClear={handleClearFlows}
-              pendingLogin={pendingLogin}
-              onContinueLogin={handleContinueLogin}
             />
           </CardContent>
         </Card>
