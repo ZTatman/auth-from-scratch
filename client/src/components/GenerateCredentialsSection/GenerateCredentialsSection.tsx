@@ -130,18 +130,18 @@ export function GenerateCredentialsSection({
       <button
         type="button"
         onClick={generateRandomCredentials}
-        className="text-sm text-blue-500 underline transition-colors duration-200 hover:text-blue-700"
+        className="text-sm text-primary underline transition-colors duration-200 hover:text-primary/80"
       >
         Generate random credentials
       </button>
       {generatedCredentials && (
-        <div className="flex items-start justify-between gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm">
+        <div className="flex items-start justify-between gap-3 rounded-md bg-muted p-3 text-sm shadow-sm">
           <div className="flex-1">
-            <p className="mb-1 text-gray-700">
+            <p className="mb-1 text-foreground">
               <span className="font-medium">Username:</span>&nbsp;
               {generatedCredentials.username}
             </p>
-            <p className="text-gray-700">
+            <p className="text-foreground">
               <span className="font-medium">Password:</span>&nbsp;
               {generatedCredentials.password}
             </p>

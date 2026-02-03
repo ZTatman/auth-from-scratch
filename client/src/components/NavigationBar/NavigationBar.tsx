@@ -14,9 +14,9 @@ export function NavigationBar(): ReactElement {
   const { user, isAuthenticated, logout } = useUser();
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-white p-4 shadow-md">
+    <div className="sticky top-0 z-50 w-full bg-background/90 p-4 shadow-sm backdrop-blur">
       <div className="container mx-auto flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold hover:opacity-80">
+        <Link to="/" className="text-2xl font-bold text-foreground hover:opacity-80">
           Auth From Scratch
         </Link>
 
@@ -24,7 +24,7 @@ export function NavigationBar(): ReactElement {
           <div className="flex items-center gap-4">
             <Link
               to="/dashboard"
-              className="text-sm font-medium text-gray-700 hover:text-gray-900 hover:underline"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground hover:underline"
             >
               Dashboard
             </Link>
@@ -42,17 +42,17 @@ export function NavigationBar(): ReactElement {
               <div
                 id="user-menu"
                 popover="auto"
-                className="user-menu-popover w-48 rounded-md border border-gray-100 bg-white shadow-lg"
+                className="user-menu-popover w-48 rounded-md bg-popover text-popover-foreground shadow-lg"
               >
-                <div className="border-b border-gray-100 px-4 py-2 text-xs text-gray-500">
+                <div className="border-b border-border px-4 py-2 text-xs text-muted-foreground">
                   Signed in as <br />
-                  <span className="font-bold text-gray-900">
+                  <span className="font-bold text-foreground">
                     {user.username}
                   </span>
                 </div>
                 <Link
                   to="/profile"
-                  className="flex w-full items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                  className="flex w-full items-center px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   <svg
                     className="mr-3 h-4 w-4"
@@ -71,7 +71,7 @@ export function NavigationBar(): ReactElement {
                 </Link>
                 <button
                   onClick={() => logout()}
-                  className="flex w-full items-center px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+                  className="flex w-full items-center px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
                 >
                   <svg
                     className="mr-3 h-4 w-4"

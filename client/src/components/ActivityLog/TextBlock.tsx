@@ -1,7 +1,7 @@
 const variantClassMap = {
   success: "text-green-500",
   error: "text-red-500",
-  normal: "text-gray-500",
+  normal: "text-muted-foreground",
 };
 
 interface TextBlockProps {

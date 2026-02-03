@@ -98,7 +98,7 @@ export function JWTDecoder() {
             <span className="text-muted-foreground">.</span>
             <span className="text-purple-500">{parts[1]}</span>
             <span className="text-muted-foreground">.</span>
-            <span className="text-blue-500">{parts[2]}</span>
+            <span className="text-primary">{parts[2]}</span>
           </code>
         </div>
         <p className="text-muted-foreground mt-1 text-xs">
@@ -106,7 +106,7 @@ export function JWTDecoder() {
           {" · "}
           <span className="text-purple-500">Payload</span>
           {" · "}
-          <span className="text-blue-500">Signature</span>
+          <span className="text-primary">Signature</span>
         </p>
       </div>
 
@@ -167,7 +167,10 @@ export function JWTDecoder() {
         <AccordionItem value="signature">
           <AccordionTrigger className="text-sm">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-blue-500/10 text-blue-500">
+              <Badge
+                variant="outline"
+                className="border-primary/20 bg-primary/10 text-primary"
+              >
                 Signature
               </Badge>
               <span className="text-muted-foreground">Verification</span>

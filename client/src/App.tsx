@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 
 // Hooks
 import { useUser, useGetProfile } from "./hooks";
@@ -9,6 +9,7 @@ import { NavigationBar } from "./components/NavigationBar/NavigationBar";
 import { AuthPage } from "./components/AuthPage";
 import { ProfileCard } from "./components/ProfileCard/ProfileCard";
 import { UserProvider } from "./components/UserContext/UserContext";
+import { Button } from "./components/ui/button";
 
 // Styles
 import "./App.css";
@@ -21,7 +22,7 @@ import "./App.css";
  */
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start gap-4 gap-y-8 bg-gray-100">
+    <div className="flex min-h-screen flex-col items-center justify-start gap-4 gap-y-8 bg-background">
       <NavigationBar />
       {children}
     </div>
@@ -41,10 +42,10 @@ function HomePage() {
   return (
     <PageLayout>
       <div className="mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-4">
-        <h2 className="text-3xl font-bold text-gray-800">
+        <h2 className="text-3xl font-bold text-foreground">
           Welcome{user ? `, ${user.username}` : ""}!
         </h2>
-        <p className="text-center text-gray-600">
+        <p className="text-center text-muted-foreground">
           You are successfully logged in. Use the avatar menu in the top right
           to access your profile or sign out.
         </p>
@@ -90,37 +91,56 @@ function ProfilePage() {
   }, [error, logout]);
 
   const profile = profileData?.success ? profileData.data : null;
+  let content: React.ReactNode;
 
   if (isLoading) {
-    return (
-      <PageLayout>
-        <div className="mt-8 text-lg text-gray-600">Loading profile...</div>
-      </PageLayout>
+    content = (
+      <div className="w-full rounded-xl border border-border/60 bg-card p-6 text-center text-muted-foreground shadow-md">
+        Loading profile...
+      </div>
     );
-  }
-
-  if (error) {
-    return (
-      <PageLayout>
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <div className="text-red-600">
-            Error: {error instanceof Error ? error.message : "Unknown error"}
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Retry
-          </button>
+  } else if (error) {
+    content = (
+      <div className="flex w-full flex-col items-center gap-4 rounded-xl border border-border/60 bg-card p-6 text-center shadow-md">
+        <div className="text-destructive">
+          Error: {error instanceof Error ? error.message : "Unknown error"}
         </div>
-      </PageLayout>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
     );
+  } else {
+    content = <ProfileCard user={profile} onLogout={logout} />;
   }
 
   return (
     <PageLayout>
-      <div className="mt-8 w-full max-w-md">
-        <ProfileCard user={profile} onLogout={logout} />
+      <div className="mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-4">
+        <div className="flex w-full flex-col items-center gap-3 text-center">
+          <h2 className="text-3xl font-bold text-foreground">Profile</h2>
+          <p className="mt-2 text-muted-foreground">
+            View your account details and session status.
+          </p>
+          <Link
+            to="/auth"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Auth
+          </Link>
+        </div>
+        {content}
       </div>
     </PageLayout>
   );

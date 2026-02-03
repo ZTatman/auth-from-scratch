@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
 import type { AuthFlowEntry } from "../../types";
 
 // shadcn components
@@ -16,6 +16,7 @@ import { StepVisualizer } from "./StepVisualizer";
 import { RequestInspector } from "./RequestInspector";
 import { JWTDecoder } from "./JWTDecoder";
 import { StorageInspector } from "./StorageInspector";
+import { SessionLifecycleSimulator } from "./SessionLifecycleSimulator";
 
 interface AuthFlowPanelProps {
   flows: AuthFlowEntry[];
@@ -34,7 +35,7 @@ export function AuthFlowPanel({
   flows,
   activeFlowId,
   onClear,
-}: AuthFlowPanelProps): JSX.Element {
+}: AuthFlowPanelProps): ReactElement {
   if (flows.length === 0) {
     return (
       <div className="flex h-full flex-col">
@@ -49,6 +50,11 @@ export function AuthFlowPanel({
         <div className="mt-6 border-t pt-4">
           <h3 className="mb-3 text-sm font-medium">Token Storage</h3>
           <StorageInspector />
+        </div>
+
+        {/* Session Lifecycle Simulator */}
+        <div className="mt-6 border-t pt-4">
+          <SessionLifecycleSimulator />
         </div>
       </div>
     );
@@ -82,6 +88,11 @@ export function AuthFlowPanel({
         <h3 className="mb-3 text-sm font-medium">Token Storage</h3>
         <StorageInspector />
       </div>
+
+      {/* Session Lifecycle Simulator */}
+      <div className="mt-6 border-t pt-4">
+        <SessionLifecycleSimulator />
+      </div>
     </div>
   );
 }
@@ -100,7 +111,7 @@ interface AuthFlowEntryCardProps {
 function AuthFlowEntryCard({
   flow,
   isActive,
-}: AuthFlowEntryCardProps): JSX.Element {
+}: AuthFlowEntryCardProps): ReactElement {
   const statusVariant = getStatusVariant(flow.status);
   const typeLabel = flow.type === "login" ? "Login" : "Register";
 

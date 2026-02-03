@@ -64,7 +64,7 @@ function JsonValue({ value, indent }: JsonValueProps): ReactNode {
 
   // Number
   if (typeof value === "number") {
-    return <span className="text-blue-600 dark:text-blue-400">{value}</span>;
+    return <span className="text-primary">{value}</span>;
   }
 
   // String
@@ -110,9 +110,7 @@ function JsonValue({ value, indent }: JsonValueProps): ReactNode {
         {entries.map(([key, val], index) => (
           <span key={key}>
             {nextIndentStr}
-            <span className="text-purple-600 dark:text-purple-400">
-              "{key}"
-            </span>
+            <span className="text-primary">"{key}"</span>
             <span className="text-foreground">: </span>
             <JsonValue value={val} indent={nextIndent} />
             {index < entries.length - 1 ? "," : ""}

@@ -499,7 +499,7 @@ export function AuthPage() {
       {/* Split-screen layout */}
       <div className="grid flex-1 grid-cols-1 gap-6 p-6 md:grid-cols-[2fr_3fr]">
         {/* Left Panel - Auth Form */}
-        <Card className="h-fit">
+        <Card className="h-fit border border-border/60">
           <CardHeader>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription>
@@ -516,7 +516,7 @@ export function AuthPage() {
         </Card>
 
         {/* Right Panel - Auth Flow Visualization */}
-        <Card className="flex flex-col">
+        <Card className="flex flex-col border border-border/60">
           <CardHeader>
             <CardTitle className="text-2xl">Authentication Flow</CardTitle>
             <CardDescription>
