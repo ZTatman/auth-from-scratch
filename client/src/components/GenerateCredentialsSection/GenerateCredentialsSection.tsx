@@ -21,7 +21,8 @@ export function GenerateCredentialsSection({
     // Prefer Web Crypto API when available
     const cryptoObj =
       typeof window !== "undefined"
-        ? window.crypto || (window as unknown as { msCrypto?: Crypto }).msCrypto
+        ? window.crypto ||
+          (window as Window & { msCrypto?: Crypto }).msCrypto
         : undefined;
 
     if (cryptoObj && typeof cryptoObj.getRandomValues === "function") {

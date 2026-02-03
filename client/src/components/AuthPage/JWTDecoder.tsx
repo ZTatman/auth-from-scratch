@@ -9,10 +9,6 @@ import {
 } from "@/components/ui/accordion";
 import { JsonBlock } from "../JsonBlock/JsonBlock";
 
-interface JWTDecoderProps {
-  token: string;
-}
-
 interface DecodedJWT {
   header: Record<string, unknown>;
   payload: Record<string, unknown>;
@@ -43,26 +39,49 @@ function decodeJWT(token: string): DecodedJWT | null {
 /**
  * Decodes and displays JWT token structure for educational purposes.
  */
-export function JWTDecoder({ token }: JWTDecoderProps) {
+export function JWTDecoder() {
   const [copied, setCopied] = useState(false);
+  const [token, setToken] = useState("");
 
-  const decoded = useMemo(() => decodeJWT(token), [token]);
-  const parts = token.split(".");
+  const trimmedToken = token.trim();
+  const decoded = useMemo(
+    () => (trimmedToken ? decodeJWT(trimmedToken) : null),
+    [trimmedToken],
+  );
+  const parts = trimmedToken.split(".");
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(token);
+    if (!trimmedToken) return;
+    await navigator.clipboard.writeText(trimmedToken);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!decoded) {
-    return (
-      <div className="text-destructive text-sm">Invalid JWT token format</div>
-    );
-  }
-
   return (
     <div className="space-y-4">
+      {/* Token Input */}
+      <div className="space-y-2">
+        <label className="text-muted-foreground text-xs font-medium">
+          Paste a JWT to decode
+        </label>
+        <textarea
+          value={token}
+          onChange={(event) => setToken(event.target.value)}
+          placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          className="border-input bg-muted focus-visible:ring-ring min-h-[96px] w-full rounded-md border px-3 py-2 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        />
+        {!trimmedToken && (
+          <p className="text-muted-foreground text-xs">
+            Paste a token above to see its header, payload, and signature.
+          </p>
+        )}
+        {trimmedToken && !decoded && (
+          <p className="text-destructive text-xs">Invalid JWT token format</p>
+        )}
+      </div>
+
+      {!trimmedToken || !decoded ? null : (
+        <>
       {/* Raw Token */}
       <div>
         <div className="mb-2 flex items-center justify-between">
@@ -175,6 +194,8 @@ export function JWTDecoder({ token }: JWTDecoderProps) {
           The signature only ensures the token hasn't been modified.
         </p>
       </div>
+        </>
+      )}
     </div>
   );
 }

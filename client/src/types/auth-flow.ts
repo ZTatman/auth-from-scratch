@@ -58,7 +58,6 @@ export interface AuthFlowEntry {
   steps: AuthStep[];
   request?: RequestDetails;
   response?: ResponseDetails;
-  token?: string;
   message?: string;
 }
 

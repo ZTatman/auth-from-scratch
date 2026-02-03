@@ -62,7 +62,6 @@ function createLogEntry(
       type,
       message: result.message,
       user: result.data.user,
-      ...(result.data.token && { token: result.data.token }),
     };
   } else {
     return {
@@ -73,6 +72,25 @@ function createLogEntry(
       ...(result.requirement && { requirement: result.requirement }),
     };
   }
+}
+
+/**
+ * Redact sensitive token data from API responses before storing in UI state.
+ *
+ * @param result - Login or register API response
+ * @returns Response data with any token value redacted
+ */
+function redactTokenFromResponse(
+  result: LoginResponse | RegisterResponse,
+): Record<string, unknown> {
+  if (result.success && result.data.token) {
+    return {
+      ...result,
+      data: { ...result.data, token: "<redacted>" },
+    } as unknown as Record<string, unknown>;
+  }
+
+  return result as unknown as Record<string, unknown>;
 }
 
 /**
@@ -199,7 +217,7 @@ export function AuthPage() {
       await delay(STEP_DELAY);
       updateFlowStep(flowId, "token", {
         status: "success",
-        detail: "eyJhbGciOiJIUzI1NiIs...",
+        detail: "JWT generated",
       });
 
       // Step 5: Storing Token - actually store to localStorage
@@ -364,9 +382,8 @@ export function AuthPage() {
         response: {
           status: result.success ? 200 : 401,
           statusText: result.success ? "OK" : "Unauthorized",
-          body: result as unknown as Record<string, unknown>,
+          body: redactTokenFromResponse(result),
         },
-        token: result.success ? result.data.token : undefined,
         message: result.message,
       });
 
@@ -439,7 +456,7 @@ export function AuthPage() {
         response: {
           status: result.success ? 201 : 400,
           statusText: result.success ? "Created" : "Bad Request",
-          body: result as unknown as Record<string, unknown>,
+          body: redactTokenFromResponse(result),
         },
         message: result.message,
       });

@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import type { AuthFlowEntry } from "../../types";
 
 // shadcn components
@@ -24,12 +25,16 @@ interface AuthFlowPanelProps {
 
 /**
  * Panel displaying authentication flow entries with step visualization.
+ * @param flows - Array of authentication flow entries to display
+ * @param activeFlowId - ID of the currently active flow, or null if none
+ * @param onClear - Callback to clear all flows
+ * @returns JSX element
  */
 export function AuthFlowPanel({
   flows,
   activeFlowId,
   onClear,
-}: AuthFlowPanelProps) {
+}: AuthFlowPanelProps): JSX.Element {
   if (flows.length === 0) {
     return (
       <div className="flex h-full flex-col">
@@ -88,15 +93,31 @@ interface AuthFlowEntryCardProps {
 
 /**
  * Individual auth flow entry card with expandable details.
+ * @param flow - The authentication flow entry data
+ * @param isActive - Whether this is the currently active flow
+ * @returns JSX element
  */
-function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
+function AuthFlowEntryCard({
+  flow,
+  isActive,
+}: AuthFlowEntryCardProps): JSX.Element {
   const statusVariant = getStatusVariant(flow.status);
   const typeLabel = flow.type === "login" ? "Login" : "Register";
 
   // Auto-expand request/response if it's the active flow or just finished with an error
-  const defaultExpanded =
-    isActive || flow.status === "error" ? ["request"] : [];
-  if (flow.token) defaultExpanded.push("token");
+  const defaultExpanded = useMemo(() => {
+    const expanded = isActive || flow.status === "error" ? ["request"] : [];
+    if (flow.type === "login" && flow.status === "success") {
+      expanded.push("token");
+    }
+    return expanded;
+  }, [isActive, flow.status, flow.type]);
+
+  const [expanded, setExpanded] = useState<string[]>(defaultExpanded);
+
+  useEffect(() => {
+    setExpanded(defaultExpanded);
+  }, [defaultExpanded]);
 
   return (
     <div
@@ -167,7 +188,8 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
         <Accordion
           type="multiple"
           className="mt-4"
-          defaultValue={defaultExpanded}
+          value={expanded}
+          onValueChange={setExpanded}
         >
           {/* Request/Response Inspector */}
           {(flow.request || flow.response) && (
@@ -185,13 +207,13 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
           )}
 
           {/* JWT Decoder (only for successful login) */}
-          {flow.token && (
+          {flow.type === "login" && flow.status === "success" && (
             <AccordionItem value="token" className="border-none">
               <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs no-underline transition-colors">
                 JWT Token Details
               </AccordionTrigger>
               <AccordionContent className="pt-2">
-                <JWTDecoder token={flow.token} />
+                <JWTDecoder />
               </AccordionContent>
             </AccordionItem>
           )}
@@ -203,6 +225,8 @@ function AuthFlowEntryCard({ flow, isActive }: AuthFlowEntryCardProps) {
 
 /**
  * Get the badge variant based on status.
+ * @param status - The authentication flow status
+ * @returns Badge variant string
  */
 function getStatusVariant(
   status: AuthFlowEntry["status"],

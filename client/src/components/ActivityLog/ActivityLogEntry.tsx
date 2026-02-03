@@ -37,7 +37,6 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
               variant="error"
             />
           )}
-          {entry.token && <TextBlock label="Token" value={entry.token} />}
         </div>
       </div>
       <div className="mt-0.5 shrink-0">
