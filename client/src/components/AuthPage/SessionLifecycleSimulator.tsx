@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 // Components
 import { Badge } from "@/components/ui/badge";
@@ -93,7 +93,7 @@ function getTokenExpirationMs(token: string): number | null {
 /**
  * Panel that simulates token expiry, refresh, and time travel for demos.
  */
-export function SessionLifecycleSimulator(): JSX.Element {
+export function SessionLifecycleSimulator(): ReactElement {
   const { authToken, logout } = useUser();
 
   const [timeOffsetMs, setTimeOffsetMs] = useState<number>(0);
