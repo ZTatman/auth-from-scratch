@@ -9,12 +9,14 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
   const actionTitle = entry.type === "register" ? "Register" : "Login";
   return (
     <div
-      className={`activity-log-entry flex w-full items-start gap-3 rounded-lg border border-gray-200 px-4 py-3 text-left shadow-md`}
+      className={`activity-log-entry flex w-full items-start gap-3 rounded-lg bg-card px-4 py-3 text-left shadow-md`}
     >
       <div className="min-w-0 flex-1 text-left">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <div className="text-sm font-bold text-gray-800">{actionTitle}</div>
-          <div className="shrink-0 text-xs text-gray-500">
+          <div className="text-sm font-bold text-foreground">
+            {actionTitle}
+          </div>
+          <div className="shrink-0 text-xs text-muted-foreground">
             {new Date(entry.timestamp).toLocaleString("en-US", {
               year: "numeric",
               month: "short",
@@ -25,7 +27,7 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
             })}
           </div>
         </div>
-        <div className="text-left text-xs wrap-break-word text-gray-600">
+        <div className="text-left text-xs wrap-break-word text-muted-foreground">
           <TextBlock label="Message" value={entry.message} />
           {entry.user && (
             <TextBlock label="Username" value={entry.user.username} />
@@ -37,7 +39,6 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
               variant="error"
             />
           )}
-          {entry.token && <TextBlock label="Token" value={entry.token} />}
         </div>
       </div>
       <div className="mt-0.5 shrink-0">

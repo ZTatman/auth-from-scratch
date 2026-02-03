@@ -1,55 +1,18 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-// Types
-import type { LoginResponse, RegisterResponse } from "@app/shared-types";
-import type { ActivityLogEntry, LoginForm, RegisterForm } from "./types";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 
 // Hooks
-import { useUser, useLogin, useRegister, useGetProfile } from "./hooks";
+import { useUser, useGetProfile } from "./hooks";
 
 // Components
 import { NavigationBar } from "./components/NavigationBar/NavigationBar";
-import { AuthForm } from "./components/AuthForm/AuthForm";
-import { ActivityLog } from "./components/ActivityLog/ActivityLog";
+import { AuthPage } from "./components/AuthPage";
 import { ProfileCard } from "./components/ProfileCard/ProfileCard";
 import { UserProvider } from "./components/UserContext/UserContext";
+import { Button } from "./components/ui/button";
 
 // Styles
 import "./App.css";
-
-/**
- * Create an activity log entry describing the outcome of a login or register API response.
- *
- * @param result - The `LoginResponse` or `RegisterResponse` whose outcome is recorded; when `success` is true the entry includes `data.user` and an optional `data.token`, otherwise it may include `requirement`.
- * @param type - Label for the entry, either `"login"` or `"register"`.
- * @returns An ActivityLogEntry containing an ISO timestamp, `status` ("success" or "error"), `type`, `message`, and either `user` (with optional `token`) on success or `requirement` on error.
- */
-function createLogEntry(
-  result: LoginResponse | RegisterResponse,
-  type: "login" | "register",
-): ActivityLogEntry {
-  if (result.success) {
-    // TypeScript automatically narrows: result is SuccessResponse<AuthData>
-    return {
-      timestamp: new Date().toISOString(),
-      status: "success",
-      type,
-      message: result.message,
-      user: result.data.user,
-      ...(result.data.token && { token: result.data.token }),
-    };
-  } else {
-    // TypeScript automatically narrows: result is ErrorResponse
-    return {
-      timestamp: new Date().toISOString(),
-      status: "error",
-      type,
-      message: result.message,
-      ...(result.requirement && { requirement: result.requirement }),
-    };
-  }
-}
 
 /**
  * Layout component that wraps pages with the navigation bar and common styling.
@@ -59,7 +22,7 @@ function createLogEntry(
  */
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start gap-4 gap-y-8 bg-gray-100">
+    <div className="flex min-h-screen flex-col items-center justify-start gap-4 gap-y-8 bg-background">
       <NavigationBar />
       {children}
     </div>
@@ -79,10 +42,10 @@ function HomePage() {
   return (
     <PageLayout>
       <div className="mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-4">
-        <h2 className="text-3xl font-bold text-gray-800">
+        <h2 className="text-3xl font-bold text-foreground">
           Welcome{user ? `, ${user.username}` : ""}!
         </h2>
-        <p className="text-center text-gray-600">
+        <p className="text-center text-muted-foreground">
           You are successfully logged in. Use the avatar menu in the top right
           to access your profile or sign out.
         </p>
@@ -128,106 +91,57 @@ function ProfilePage() {
   }, [error, logout]);
 
   const profile = profileData?.success ? profileData.data : null;
+  let content: React.ReactNode;
 
   if (isLoading) {
-    return (
-      <PageLayout>
-        <div className="mt-8 text-lg text-gray-600">Loading profile...</div>
-      </PageLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageLayout>
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <div className="text-red-600">
-            Error: {error instanceof Error ? error.message : "Unknown error"}
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Retry
-          </button>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  return (
-    <PageLayout>
-      <div className="mt-8 w-full max-w-md">
-        <ProfileCard user={profile} onLogout={logout} />
+    content = (
+      <div className="w-full rounded-xl border border-border/60 bg-card p-6 text-center text-muted-foreground shadow-md">
+        Loading profile...
       </div>
-    </PageLayout>
-  );
-}
-
-/**
- * Renders the authentication page with login/register forms and activity log.
- *
- * Maintains an in-memory activity log and provides handlers for login and registration.
- *
- * @returns The JSX for the auth page including forms and activity log.
- */
-function AuthPage() {
-  const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>([]);
-
-  const loginMutation = useLogin();
-  const registerMutation = useRegister();
-
-  const handleLogin = async (data: LoginForm): Promise<boolean> => {
-    try {
-      const result = await loginMutation.mutateAsync(data);
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        createLogEntry(result, "login"),
-      ]);
-      return result.success;
-    } catch (error) {
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        {
-          timestamp: new Date().toISOString(),
-          status: "error",
-          type: "login",
-          message: error instanceof Error ? error.message : "Login failed",
-        },
-      ]);
-      return false;
-    }
-  };
-
-  const handleRegister = async (data: RegisterForm): Promise<void> => {
-    try {
-      const result = await registerMutation.mutateAsync(data);
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        createLogEntry(result, "register"),
-      ]);
-    } catch (error) {
-      setActivityLog((prev: ActivityLogEntry[]) => [
-        ...prev,
-        {
-          timestamp: new Date().toISOString(),
-          status: "error",
-          type: "register",
-          message:
-            error instanceof Error ? error.message : "Registration failed",
-        },
-      ]);
-    }
-  };
+    );
+  } else if (error) {
+    content = (
+      <div className="flex w-full flex-col items-center gap-4 rounded-xl border border-border/60 bg-card p-6 text-center shadow-md">
+        <div className="text-destructive">
+          Error: {error instanceof Error ? error.message : "Unknown error"}
+        </div>
+        <Button onClick={() => window.location.reload()}>Retry</Button>
+      </div>
+    );
+  } else {
+    content = <ProfileCard user={profile} onLogout={logout} />;
+  }
 
   return (
     <PageLayout>
-      <AuthForm
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-        setActivityLog={setActivityLog}
-      />
-      <ActivityLog entries={activityLog} onClear={() => setActivityLog([])} />
+      <div className="mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-4">
+        <div className="flex w-full flex-col items-center gap-3 text-center">
+          <h2 className="text-3xl font-bold text-foreground">Profile</h2>
+          <p className="mt-2 text-muted-foreground">
+            View your account details and session status.
+          </p>
+          <Link
+            to="/auth"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Auth
+          </Link>
+        </div>
+        {content}
+      </div>
     </PageLayout>
   );
 }
@@ -243,14 +157,26 @@ function AuthPage() {
 function AppRoutes() {
   const { isAuthenticated } = useUser();
 
-  if (!isAuthenticated) {
-    return <AuthPage />;
-  }
-
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/profile" element={<ProfilePage />} />
+      {/* Public route (can be visited when authenticated to see success state) */}
+      <Route path="/auth" element={<AuthPage />} />
+
+      {/* Protected routes */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? <HomePage /> : <Navigate to="/auth" replace />
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />
+        }
+      />
+
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

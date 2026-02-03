@@ -1,14 +1,18 @@
 import { Router, Response, Request } from "express";
 import bcrypt from "bcryptjs";
-import jwt, { Secret } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { userRepository } from "../db/repositories/userRepository";
 import { toSafeUser } from "../utils/response";
-import { validatePassword } from "../utils/validation";
+
+// Zod validation
+import {
+  loginSchema,
+  registerCredentialsSchema,
+  getFirstZodError,
+} from "@app/shared-types";
 
 // Types
 import type { RegisterResponse, LoginResponse } from "@app/shared-types";
-import type { AuthCredentials } from "../types/auth";
-import type { User } from "../generated/prisma/client";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -28,26 +32,19 @@ router.post(
   "/register",
   async (req: Request, res: Response<RegisterResponse>): Promise<void> => {
     try {
-      const { username, password } = req.body as unknown as AuthCredentials;
-
-      if (!username || !password) {
+      // 1. Validate request body with Zod
+      const parseResult = registerCredentialsSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        const firstError = getFirstZodError(parseResult.error);
         res.status(400).json({
           success: false,
-          message: "Username and password are required",
+          message: firstError?.message ?? "Invalid request",
+          requirement: firstError?.message,
         });
         return;
       }
 
-      // 1. Check password validation requirements
-      const validationMessage = validatePassword(password);
-      if (validationMessage) {
-        res.status(400).json({
-          success: false,
-          message: validationMessage,
-          requirement: validationMessage,
-        });
-        return;
-      }
+      const { username, password } = parseResult.data;
 
       // 2. Check for already existing user
       const existingUser = await userRepository.findByUsername(username);
@@ -94,16 +91,18 @@ router.post(
   "/login",
   async (req: Request, res: Response<LoginResponse>): Promise<void> => {
     try {
-      const { username, password } = req.body as unknown as AuthCredentials;
-
-      // 1. Validate request body
-      if (!username || !password) {
+      // 1. Validate request body with Zod
+      const parseResult = loginSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        const firstError = getFirstZodError(parseResult.error);
         res.status(400).json({
           success: false,
-          message: "Username and password are required.",
+          message: firstError?.message ?? "Username and password are required.",
         });
         return;
       }
+
+      const { username, password } = parseResult.data;
 
       // 2. Find user by username
       const user = await userRepository.findByUsername(username);

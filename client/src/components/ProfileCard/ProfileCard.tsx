@@ -1,6 +1,17 @@
 // Types
 import type { SafeUser } from "@app/shared-types";
 
+// Components
+import { Button } from "../ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+
 /**
  * Props for the ProfileCard component.
  */
@@ -22,55 +33,55 @@ interface ProfileCardProps {
  * @returns JSX element rendering the profile information card
  */
 export function ProfileCard({ user, onLogout }: ProfileCardProps) {
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-md rounded-lg bg-white p-8 shadow-lg">
-        <div className="text-center text-gray-500">No user data available</div>
-      </div>
-    );
-  }
-
-  const createdDate = new Date(user.createAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
   return (
-    <div className="mx-auto max-w-md rounded-lg bg-white p-8 shadow-lg">
-      <h2 className="mb-6 text-2xl font-bold text-gray-900">Profile</h2>
+    <Card className="w-full border border-border/60 text-left">
+      <CardHeader>
+        <CardTitle className="text-2xl">Account Details</CardTitle>
+        <CardDescription>
+          Verified account information from the server.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {user ? (
+          <dl className="grid gap-4">
+            <div className="space-y-1">
+              <dt className="text-sm font-medium text-muted-foreground">
+                Username
+              </dt>
+              <dd className="text-lg text-foreground">{user.username}</dd>
+            </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Username
-          </label>
-          <p className="mt-1 text-lg text-gray-900">{user.username}</p>
-        </div>
+            <div className="space-y-1">
+              <dt className="text-sm font-medium text-muted-foreground">
+                User ID
+              </dt>
+              <dd className="font-mono text-sm text-muted-foreground">
+                {user.id}
+              </dd>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            User ID
-          </label>
-          <p className="mt-1 font-mono text-sm text-gray-600">{user.id}</p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Member Since
-          </label>
-          <p className="mt-1 text-lg text-gray-900">{createdDate}</p>
-        </div>
-      </div>
-
-      <div className="mt-8 border-t pt-6">
-        <button
-          onClick={onLogout}
-          className="w-full rounded-md bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-        >
+            <div className="space-y-1">
+              <dt className="text-sm font-medium text-muted-foreground">
+                Member Since
+              </dt>
+              <dd className="text-lg text-foreground">
+                {new Date(user.createAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </dd>
+            </div>
+          </dl>
+        ) : (
+          <p className="text-muted-foreground">No user data available.</p>
+        )}
+      </CardContent>
+      <CardFooter className="border-t border-border">
+        <Button variant="destructive" className="w-full" onClick={onLogout}>
           Sign Out
-        </button>
-      </div>
-    </div>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }

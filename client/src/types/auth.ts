@@ -25,5 +25,4 @@ export interface ActivityLogEntry {
   message: string;
   requirement?: string;
   user?: SafeUser;
-  token?: string;
 }

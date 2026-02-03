@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ActivityLogEntry as ActivityLogEntryType } from "../../types";
 import { ActivityLogEntry } from "./ActivityLogEntry";
 
@@ -10,8 +10,13 @@ interface ActivityLogProps {
 export function ActivityLog({ entries, onClear }: ActivityLogProps) {
   const [isClearing, setIsClearing] = useState(false);
 
-  const sortedEntries = entries.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+  const sortedEntries = useMemo(
+    () =>
+      [...entries].sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      ),
+    [entries],
   );
 
   const handleClear = () => {
@@ -24,20 +29,20 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
 
   return (
     <div className="w-full max-w-md">
-      <hr className="mb-4 border-t border-gray-300" />
+      <hr className="mb-4 border-t border-border" />
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-lg font-semibold text-gray-700">
+        <span className="text-lg font-semibold text-foreground">
           Activity Log
         </span>
         <button
           onClick={handleClear}
-          className="rounded-full p-2 transition-colors duration-150 hover:bg-gray-200"
+          className="rounded-full p-2 transition-colors duration-150 hover:bg-muted"
           aria-label="Clear activity log"
           title="Clear activity log"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-gray-500"
+            className="h-5 w-5 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -53,13 +58,13 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
       </div>
       <div className="space-y-3">
         {sortedEntries.length === 0 ? (
-          <div className="p-8 text-center text-sm text-gray-400">
+          <div className="p-8 text-center text-sm text-muted-foreground">
             No activity yet
           </div>
         ) : (
-          sortedEntries.map((entry, idx) => (
+          sortedEntries.map((entry) => (
             <div
-              key={idx}
+              key={`${entry.timestamp}-${entry.type}-${entry.status}`}
               className={isClearing ? "activity-log-entry-exit" : ""}
             >
               <ActivityLogEntry entry={entry} />
