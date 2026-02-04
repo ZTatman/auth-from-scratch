@@ -2,4 +2,4 @@
 export { useLogin, useRegister } from "./useAuth";
 
 // Profile hooks
-export { useGetProfile } from "./useProfile";
+export { useDeleteAccount, useGetProfile } from "./useProfile";

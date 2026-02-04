@@ -134,7 +134,7 @@ function AuthFlowEntryCard({
     <div
       className={`bg-card group relative overflow-hidden rounded-lg border transition-all duration-300 ${
         isActive
-          ? "border-primary shadow-primary/10 ring-primary/20 z-10 scale-[1.02] shadow-lg ring-4"
+          ? "border-primary shadow-primary/10 ring-primary/20 z-10 scale-[1.02] shadow-md ring-4"
           : "hover:border-muted-foreground/30 opacity-90 shadow-sm"
       }`}
     >

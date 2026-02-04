@@ -1,8 +1,15 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 // Hooks
-import { useUser, useGetProfile } from "./hooks";
+import { useDeleteAccount, useGetProfile, useUser } from "./hooks";
 
 // Components
 import { NavigationBar } from "./components/NavigationBar/NavigationBar";
@@ -69,11 +76,13 @@ function HomePage() {
  */
 function ProfilePage() {
   const { authToken, logout } = useUser();
+  const navigate = useNavigate();
   const {
     data: profileData,
     isLoading,
     error,
   } = useGetProfile(authToken || undefined);
+  const deleteAccountMutation = useDeleteAccount();
 
   // Handle token-related errors by logging out
   useEffect(() => {
@@ -91,17 +100,20 @@ function ProfilePage() {
   }, [error, logout]);
 
   const profile = profileData?.success ? profileData.data : null;
+  const deleteError = deleteAccountMutation.data?.success
+    ? null
+    : deleteAccountMutation.data?.message || null;
   let content: React.ReactNode;
 
   if (isLoading) {
     content = (
-      <div className="w-full rounded-xl border border-border/60 bg-card p-6 text-center text-muted-foreground shadow-md">
+      <div className="w-full rounded-xl border border-border/60 bg-card p-6 text-center text-muted-foreground shadow-sm">
         Loading profile...
       </div>
     );
   } else if (error) {
     content = (
-      <div className="flex w-full flex-col items-center gap-4 rounded-xl border border-border/60 bg-card p-6 text-center shadow-md">
+      <div className="flex w-full flex-col items-center gap-4 rounded-xl border border-border/60 bg-card p-6 text-center shadow-sm">
         <div className="text-destructive">
           Error: {error instanceof Error ? error.message : "Unknown error"}
         </div>
@@ -109,7 +121,23 @@ function ProfilePage() {
       </div>
     );
   } else {
-    content = <ProfileCard user={profile} onLogout={logout} />;
+    content = (
+      <ProfileCard
+        user={profile}
+        onLogout={logout}
+        onDeleteAccount={async () => {
+          const result = await deleteAccountMutation.mutateAsync();
+          if (result.success) {
+            logout();
+            navigate("/auth", { replace: true });
+            return true;
+          }
+          return false;
+        }}
+        isDeleting={deleteAccountMutation.isPending}
+        deleteError={deleteError}
+      />
+    );
   }
 
   return (
