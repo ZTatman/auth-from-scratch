@@ -9,7 +9,7 @@ export function ActivityLogEntry({ entry }: ActivityLogEntryProps) {
   const actionTitle = entry.type === "register" ? "Register" : "Login";
   return (
     <div
-      className={`activity-log-entry flex w-full items-start gap-3 rounded-lg bg-card px-4 py-3 text-left shadow-md`}
+      className={`activity-log-entry flex w-full items-start gap-3 rounded-lg bg-card px-4 py-3 text-left shadow-sm`}
     >
       <div className="min-w-0 flex-1 text-left">
         <div className="mb-1 flex items-center justify-between gap-2">

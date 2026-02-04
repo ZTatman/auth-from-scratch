@@ -1,5 +1,8 @@
 import { useState } from "react";
+
+// Components
 import { CopyButton } from "../CopyButton/CopyButton";
+import { Button } from "../ui/button";
 
 interface GenerateCredentialsSectionProps {
   onCredentialsGenerated: (username: string, password: string) => void;
@@ -127,13 +130,15 @@ export function GenerateCredentialsSection({
 
   return (
     <div className="space-y-3">
-      <button
+      <Button
         type="button"
+        variant="link"
+        size="sm"
         onClick={generateRandomCredentials}
-        className="text-sm text-primary underline transition-colors duration-200 hover:text-primary/80"
+        className="h-auto px-0 text-primary hover:text-primary/80"
       >
         Generate random credentials
-      </button>
+      </Button>
       {generatedCredentials && (
         <div className="flex items-start justify-between gap-3 rounded-md bg-muted p-3 text-sm shadow-sm">
           <div className="flex-1">

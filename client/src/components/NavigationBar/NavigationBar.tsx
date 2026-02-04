@@ -2,6 +2,9 @@ import { useMemo, type ReactElement } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../../hooks";
 
+// Components
+import { Button } from "../ui/button";
+
 /**
  * Renders application's top navigation bar with branding and a user menu when signed in.
  *
@@ -34,12 +37,14 @@ export function NavigationBar(): ReactElement {
 
             <div className="relative">
               {/* The Trigger Button - anchored */}
-              <button
+              <Button
                 popoverTarget="user-menu"
-                className="user-menu-trigger flex items-center gap-2 rounded-full transition-opacity hover:opacity-80 focus:outline-none"
+                variant="ghost"
+                size="icon-sm"
+                className="user-menu-trigger flex items-center gap-2 rounded-full transition-opacity hover:opacity-80"
               >
                 <Avatar username={user.username} />
-              </button>
+              </Button>
 
               {/* The Popover Menu - positioned relative to the anchor */}
               <div
@@ -72,9 +77,10 @@ export function NavigationBar(): ReactElement {
                   </svg>
                   Profile
                 </Link>
-                <button
+                <Button
                   onClick={() => logout()}
-                  className="text-destructive hover:bg-destructive/10 flex w-full items-center px-4 py-2 text-sm transition-colors"
+                  variant="ghost"
+                  className="text-destructive hover:bg-destructive/10 w-full justify-start px-4 text-sm"
                 >
                   <svg
                     className="mr-3 h-4 w-4"
@@ -90,7 +96,7 @@ export function NavigationBar(): ReactElement {
                     />
                   </svg>
                   Sign out
-                </button>
+                </Button>
               </div>
             </div>
           </div>

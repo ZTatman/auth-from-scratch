@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+
+// Components
+import { Button } from "@/components/ui/button";
 import type { ActivityLogEntry as ActivityLogEntryType } from "../../types";
 import { ActivityLogEntry } from "./ActivityLogEntry";
 
@@ -34,9 +37,11 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
         <span className="text-lg font-semibold text-foreground">
           Activity Log
         </span>
-        <button
+        <Button
           onClick={handleClear}
-          className="rounded-full p-2 transition-colors duration-150 hover:bg-muted"
+          variant="ghost"
+          size="icon-sm"
+          className="rounded-full"
           aria-label="Clear activity log"
           title="Clear activity log"
         >
@@ -54,7 +59,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
               d="M6 18L18 6M6 6l12 12"
             />
           </svg>
-        </button>
+        </Button>
       </div>
       <div className="space-y-3">
         {sortedEntries.length === 0 ? (
