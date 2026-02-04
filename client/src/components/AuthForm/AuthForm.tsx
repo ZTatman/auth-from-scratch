@@ -7,7 +7,8 @@ import {
 } from "@app/shared-types";
 
 // Types
-import type { ActivityLogEntry, LoginForm, RegisterForm } from "../../types";
+import type { ActivityLogEntry } from "../../types";
+import type { LoginFormData, RegisterFormData } from "@app/shared-types";
 
 // shadcn components
 import { Input } from "@/components/ui/input";
@@ -32,8 +33,8 @@ const initialFormData: FormState = {
 };
 
 interface AuthFormProps {
-  onLogin: (data: LoginForm) => Promise<boolean>;
-  onRegister: (data: RegisterForm) => Promise<void>;
+  onLogin: (data: LoginFormData) => Promise<boolean>;
+  onRegister: (data: RegisterFormData) => Promise<void>;
   setActivityLog: React.Dispatch<React.SetStateAction<ActivityLogEntry[]>>;
 }
 
