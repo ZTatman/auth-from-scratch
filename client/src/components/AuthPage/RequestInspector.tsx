@@ -1,5 +1,4 @@
 import type { RequestDetails, ResponseDetails } from "../../types";
-import { Badge } from "@/components/ui/badge";
 import { JsonBlock } from "../JsonBlock/JsonBlock";
 
 interface RequestInspectorProps {
@@ -17,7 +16,9 @@ export function RequestInspector({ request, response }: RequestInspectorProps) {
       {request && (
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <Badge variant="outline">{request.method}</Badge>
+            <span className="text-foreground text-xs font-medium">
+              {request.method}
+            </span>
             <code className="text-muted-foreground text-xs">{request.url}</code>
           </div>
 
@@ -46,11 +47,8 @@ export function RequestInspector({ request, response }: RequestInspectorProps) {
       {response && (
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <Badge variant={response.status < 400 ? "default" : "destructive"}>
-              {response.status}
-            </Badge>
             <span className="text-muted-foreground text-xs">
-              {response.statusText}
+              {response.status} {response.statusText}
             </span>
           </div>
 

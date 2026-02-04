@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 // Components
-import { CopyButton } from "../CopyButton/CopyButton";
 import { Button } from "../ui/button";
 
 interface GenerateCredentialsSectionProps {
@@ -15,7 +14,16 @@ export function GenerateCredentialsSection({
     username: string;
     password: string;
   } | null>(null);
+  const [copied, setCopied] = useState(false);
 
+  const handleCopy = async () => {
+    if (!generatedCredentials) return;
+    await navigator.clipboard.writeText(
+      `Username: ${generatedCredentials.username}\nPassword: ${generatedCredentials.password}`,
+    );
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   const getSecureRandomInt = (max: number): number => {
     if (max <= 0) {
       throw new Error("max must be positive");
@@ -24,8 +32,7 @@ export function GenerateCredentialsSection({
     // Prefer Web Crypto API when available
     const cryptoObj =
       typeof window !== "undefined"
-        ? window.crypto ||
-          (window as Window & { msCrypto?: Crypto }).msCrypto
+        ? window.crypto || (window as Window & { msCrypto?: Crypto }).msCrypto
         : undefined;
 
     if (cryptoObj && typeof cryptoObj.getRandomValues === "function") {
@@ -135,14 +142,14 @@ export function GenerateCredentialsSection({
         variant="link"
         size="sm"
         onClick={generateRandomCredentials}
-        className="h-auto px-0 text-primary hover:text-primary/80"
+        className="text-primary hover:text-primary/80 h-auto px-0"
       >
         Generate random credentials
       </Button>
       {generatedCredentials && (
-        <div className="flex items-start justify-between gap-3 rounded-md bg-muted p-3 text-sm shadow-sm">
+        <div className="bg-muted flex items-start justify-between gap-3 rounded-md p-3 text-sm shadow-sm">
           <div className="flex-1">
-            <p className="mb-1 text-foreground">
+            <p className="text-foreground mb-1">
               <span className="font-medium">Username:</span>&nbsp;
               {generatedCredentials.username}
             </p>
@@ -151,9 +158,17 @@ export function GenerateCredentialsSection({
               {generatedCredentials.password}
             </p>
           </div>
-          <CopyButton
+          {/* <CopyButton
             textToCopy={`Username: ${generatedCredentials.username}\nPassword: ${generatedCredentials.password}`}
-          />
+          /> */}
+          <Button
+            variant="link"
+            size="sm"
+            onClick={handleCopy}
+            className="text-primary hover:text-primary/80 h-auto px-0 text-xs"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </Button>
         </div>
       )}
     </div>

@@ -72,18 +72,22 @@ export function StorageInspector() {
         </div>
 
         {storedToken ? (
-          <div className="mt-2">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">
-                Current value:
-              </span>
-              <Button variant="ghost" size="sm" onClick={handleCopy}>
-                {copied ? "Copied!" : "Copy"}
-              </Button>
+          <div className="mt-4">
+            <div className="relative">
+              <pre className="bg-muted mt-1 flex items-center overflow-x-auto rounded-md p-2 pr-20 align-baseline text-xs">
+                <span className="align-baseline">{truncatedToken}</span>
+                <Button
+                  variant="link"
+                  size="icon"
+                  onClick={handleCopy}
+                  className="absolute right-0 mr-2 py-0.5 align-baseline text-xs"
+                  tabIndex={-1}
+                  aria-label="Copy token"
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </Button>
+              </pre>
             </div>
-            <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-2 text-xs">
-              {truncatedToken}
-            </pre>
           </div>
         ) : (
           <p className="text-muted-foreground mt-2 text-xs">
@@ -99,18 +103,18 @@ export function StorageInspector() {
             Why localStorage?
           </AccordionTrigger>
           <AccordionContent>
-            <div className="text-muted-foreground space-y-3 text-xs">
+            <div className="text-muted-foreground flex flex-col items-center space-y-6 text-xs">
               <p>
                 <strong>localStorage</strong> is a simple key-value storage in
                 the browser that persists across sessions. For this educational
                 demo, we use it because:
               </p>
-              <ul className="space-y-1 text-center">
+              <ul className="list-inside list-decimal space-y-0.5 text-center">
                 <li>Simple to implement and understand</li>
                 <li>Token persists after browser refresh</li>
                 <li>Easy to inspect in browser DevTools</li>
               </ul>
-              <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-2 text-center">
+              <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-2 text-left">
                 <p className="font-medium text-amber-700 dark:text-amber-400">
                   Security Note:
                 </p>
@@ -177,9 +181,9 @@ export function StorageInspector() {
             View in DevTools
           </AccordionTrigger>
           <AccordionContent>
-            <div className="text-muted-foreground space-y-2 text-center text-xs">
+            <div className="text-muted-foreground flex flex-col items-center space-y-6 text-xs">
               <p>To view the stored token in your browser:</p>
-              <ol className="space-y-1">
+              <ul className="list-inside list-decimal space-y-0.5 text-center">
                 <li>Open DevTools (F12 or Cmd+Option+I)</li>
                 <li>Go to Application tab (Chrome) or Storage tab (Firefox)</li>
                 <li>Expand "Local Storage" in the sidebar</li>
@@ -188,7 +192,7 @@ export function StorageInspector() {
                   Find the{" "}
                   <code className="bg-muted rounded px-1">auth_token</code> key
                 </li>
-              </ol>
+              </ul>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -205,7 +209,7 @@ interface StorageOptionProps {
 
 function StorageOption({ name, pros, cons }: StorageOptionProps) {
   return (
-    <div className="rounded-md border p-2 text-center">
+    <div className="rounded-md border p-2 text-left">
       <p className="text-foreground font-medium">{name}</p>
       <div className="mt-1 grid grid-cols-2 gap-2">
         <div>

@@ -34,6 +34,12 @@ export function NavigationBar(): ReactElement {
             >
               Home
             </Link>
+            <Link
+              to="/auth"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium hover:underline"
+            >
+              Auth
+            </Link>
 
             <div className="relative">
               {/* The Trigger Button - anchored */}
