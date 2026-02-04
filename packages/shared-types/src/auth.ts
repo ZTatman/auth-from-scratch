@@ -3,11 +3,11 @@
 // ============================================
 
 // User without sensitive fields (safe to send to client)
-// Note: createAt is string because Date becomes string over JSON
+// Note: createdAt is string because Date becomes string over JSON
 export interface SafeUser {
   id: string;
   username: string;
-  createAt: string;
+  createdAt: string;
 }
 
 // Success response (has data)

@@ -34,7 +34,7 @@ interface ProfileCardProps {
  */
 export function ProfileCard({ user, onLogout }: ProfileCardProps) {
   return (
-    <Card className="w-full border border-border/60 text-left">
+    <Card className="border-border/60 w-full border text-left">
       <CardHeader>
         <CardTitle className="text-2xl">Account Details</CardTitle>
         <CardDescription>
@@ -45,27 +45,27 @@ export function ProfileCard({ user, onLogout }: ProfileCardProps) {
         {user ? (
           <dl className="grid gap-4">
             <div className="space-y-1">
-              <dt className="text-sm font-medium text-muted-foreground">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Username
               </dt>
-              <dd className="text-lg text-foreground">{user.username}</dd>
+              <dd className="text-foreground text-lg">{user.username}</dd>
             </div>
 
             <div className="space-y-1">
-              <dt className="text-sm font-medium text-muted-foreground">
+              <dt className="text-muted-foreground text-sm font-medium">
                 User ID
               </dt>
-              <dd className="font-mono text-sm text-muted-foreground">
+              <dd className="text-muted-foreground font-mono text-sm">
                 {user.id}
               </dd>
             </div>
 
             <div className="space-y-1">
-              <dt className="text-sm font-medium text-muted-foreground">
+              <dt className="text-muted-foreground text-sm font-medium">
                 Member Since
               </dt>
-              <dd className="text-lg text-foreground">
-                {new Date(user.createAt).toLocaleDateString("en-US", {
+              <dd className="text-foreground text-lg">
+                {new Date(user.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -77,7 +77,7 @@ export function ProfileCard({ user, onLogout }: ProfileCardProps) {
           <p className="text-muted-foreground">No user data available.</p>
         )}
       </CardContent>
-      <CardFooter className="border-t border-border">
+      <CardFooter className="border-border border-t">
         <Button variant="destructive" className="w-full" onClick={onLogout}>
           Sign Out
         </Button>
