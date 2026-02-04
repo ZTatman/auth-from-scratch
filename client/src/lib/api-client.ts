@@ -122,6 +122,16 @@ export class ApiClient {
       includeAuth,
     });
   }
+
+  /**
+   * Convenience method for DELETE requests
+   */
+  async delete<T>(endpoint: string, includeAuth = false): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "DELETE",
+      includeAuth,
+    });
+  }
 }
 
 // Export singleton instance

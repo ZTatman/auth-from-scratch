@@ -37,3 +37,4 @@ export interface AuthData {
 export type LoginResponse = ApiResponse<AuthData>;
 export type RegisterResponse = ApiResponse<AuthData>;
 export type ProfileResponse = ApiResponse<SafeUser>;
+export type DeleteAccountResponse = ApiResponse<{ userId: string }>;

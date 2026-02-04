@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type ReactElement } from "react";
 import type { AuthFlowEntry } from "../../types";
 
 // shadcn components
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -67,7 +66,12 @@ export function AuthFlowPanel({
         <span className="text-muted-foreground text-sm">
           {flows.length} {flows.length === 1 ? "request" : "requests"}
         </span>
-        <Button variant="ghost" size="sm" onClick={onClear}>
+        <Button
+          variant="link"
+          size="sm"
+          className="px-0 text-primary hover:text-primary/80"
+          onClick={onClear}
+        >
           Clear all
         </Button>
       </div>
@@ -112,7 +116,6 @@ function AuthFlowEntryCard({
   flow,
   isActive,
 }: AuthFlowEntryCardProps): ReactElement {
-  const statusVariant = getStatusVariant(flow.status);
   const typeLabel = flow.type === "login" ? "Login" : "Register";
 
   // Auto-expand request/response if it's the active flow or just finished with an error
@@ -134,7 +137,7 @@ function AuthFlowEntryCard({
     <div
       className={`bg-card group relative overflow-hidden rounded-lg border transition-all duration-300 ${
         isActive
-          ? "border-primary shadow-primary/10 ring-primary/20 z-10 scale-[1.02] shadow-lg ring-4"
+          ? "border-primary shadow-primary/10 ring-primary/20 z-10 scale-[1.02] shadow-md ring-4"
           : "hover:border-muted-foreground/30 opacity-90 shadow-sm"
       }`}
     >
@@ -145,27 +148,13 @@ function AuthFlowEntryCard({
 
       <div className="p-4">
         {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-5 flex items-baseline justify-between">
           <div className="flex items-center gap-2">
-            <Badge
-              variant={flow.type === "login" ? "default" : "secondary"}
-              className="px-2 py-0"
-            >
+            <span className="text-foreground text-sm font-semibold">
               {typeLabel}
-            </Badge>
-            <Badge variant={statusVariant} className="flex items-center gap-1">
-              {flow.status === "pending" && (
-                <span className="bg-background h-1.5 w-1.5 animate-pulse rounded-full" />
-              )}
-              {flow.status === "pending" ? "Active Flow" : flow.status}
-            </Badge>
+            </span>
             {isActive && (
-              <Badge
-                variant="outline"
-                className="border-primary text-primary animate-pulse border-dashed bg-transparent"
-              >
-                Live
-              </Badge>
+              <span className="text-primary text-xs font-medium">Live</span>
             )}
           </div>
           <span className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
@@ -178,14 +167,14 @@ function AuthFlowEntryCard({
         </div>
 
         {/* Step Visualizer */}
-        <div className="bg-muted/30 rounded-md p-4">
+        <div className="mt-2 rounded-md">
           <StepVisualizer steps={flow.steps} />
         </div>
 
         {/* Message */}
         {flow.message && (
           <div
-            className={`mt-4 rounded-md p-3 text-xs font-medium ${
+            className={`mt-6 rounded-md p-3 text-xs font-medium ${
               flow.status === "error"
                 ? "bg-destructive/10 text-destructive border-destructive/20 border"
                 : "border border-green-500/20 bg-green-500/10 text-green-700 dark:text-green-400"
@@ -198,14 +187,14 @@ function AuthFlowEntryCard({
         {/* Expandable Details */}
         <Accordion
           type="multiple"
-          className="mt-4"
+          className="mt-5"
           value={expanded}
           onValueChange={setExpanded}
         >
           {/* Request/Response Inspector */}
           {(flow.request || flow.response) && (
-            <AccordionItem value="request" className="border-none">
-              <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs no-underline transition-colors">
+            <AccordionItem value="request">
+              <AccordionTrigger className="text-xs">
                 Request / Response Details
               </AccordionTrigger>
               <AccordionContent className="pt-2">
@@ -219,8 +208,8 @@ function AuthFlowEntryCard({
 
           {/* JWT Decoder (only for successful login) */}
           {flow.type === "login" && flow.status === "success" && (
-            <AccordionItem value="token" className="border-none">
-              <AccordionTrigger className="hover:bg-muted/50 rounded-md px-2 py-2 text-xs no-underline transition-colors">
+            <AccordionItem value="token">
+              <AccordionTrigger className="text-xs">
                 JWT Token Details
               </AccordionTrigger>
               <AccordionContent className="pt-2">
@@ -239,17 +228,4 @@ function AuthFlowEntryCard({
  * @param status - The authentication flow status
  * @returns Badge variant string
  */
-function getStatusVariant(
-  status: AuthFlowEntry["status"],
-): "default" | "secondary" | "destructive" | "outline" {
-  switch (status) {
-    case "success":
-      return "default";
-    case "error":
-      return "destructive";
-    case "pending":
-      return "outline";
-    default:
-      return "secondary";
-  }
-}
+// Status badge removed to reduce visual clutter.

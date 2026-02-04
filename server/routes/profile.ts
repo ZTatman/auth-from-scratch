@@ -8,7 +8,7 @@ import {
 } from "../middleware/auth";
 
 // Types
-import type { ProfileResponse } from "@app/shared-types";
+import type { DeleteAccountResponse, ProfileResponse } from "@app/shared-types";
 
 const router = Router();
 
@@ -73,6 +73,48 @@ router.get(
       res.status(500).json({
         success: false,
         message: "An error occurred while retrieving your profile",
+      });
+    }
+  },
+);
+
+/**
+ * DELETE /api/profile
+ *
+ * Deletes the authenticated user's account.
+ * This route is protected by JWT authentication middleware.
+ */
+router.delete(
+  "/profile",
+  profileRateLimiter,
+  authenticateToken,
+  async (
+    req: AuthenticatedRequest,
+    res: Response<DeleteAccountResponse>,
+  ): Promise<void> => {
+    try {
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: "User ID not found in token",
+        });
+        return;
+      }
+
+      await userRepository.delete(userId);
+
+      res.status(200).json({
+        success: true,
+        message: "Account deleted successfully",
+        data: { userId },
+      });
+    } catch (error) {
+      console.error("Account deletion error:", error);
+      res.status(500).json({
+        success: false,
+        message: "An error occurred while deleting your account",
       });
     }
   },

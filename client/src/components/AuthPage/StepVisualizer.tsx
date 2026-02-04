@@ -10,7 +10,7 @@ interface StepVisualizerProps {
  */
 export function StepVisualizer({ steps }: StepVisualizerProps) {
   return (
-    <div className="relative space-y-0">
+    <div className="relative space-y-3">
       {steps.map((step, index) => (
         <StepItem
           key={step.id}
@@ -66,7 +66,7 @@ function StepItem({ step, stepNumber, isLast }: StepItemProps) {
           </span>
         </div>
 
-        <div className="flex-1 space-y-1">
+        <div className="flex-1 space-y-1 text-left">
           <div className="flex items-center gap-2">
             <StatusIcon status={step.status} />
             <span
@@ -92,7 +92,7 @@ function StepItem({ step, stepNumber, isLast }: StepItemProps) {
 
           {/* Description: left-aligned */}
           <p
-            className={`text-xs leading-relaxed transition-colors ${
+            className={`text-left text-xs leading-relaxed transition-colors ${
               isPending ? "text-muted-foreground/60" : "text-muted-foreground"
             }`}
           >

@@ -196,89 +196,108 @@ export function SessionLifecycleSimulator(): ReactElement {
     pushEvent("Protected request allowed (token valid).", "success");
   };
 
-  const expLabel = effectiveExpMs
-    ? formatTimeShort(effectiveExpMs)
-    : "Unknown";
+  const expLabel = effectiveExpMs ? formatTimeShort(effectiveExpMs) : "Unknown";
 
   return (
-    <div className="space-y-4 rounded-lg bg-muted/40 p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">
+    <div className="border-border/60 bg-card space-y-6 rounded-lg border p-3 shadow-sm">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-foreground text-sm font-semibold">
             Session Lifecycle Simulator
           </h3>
-          <p className="text-muted-foreground text-xs">
-            Advance time, expire tokens, and simulate refresh behavior.
-          </p>
-        </div>
-        <Badge variant={statusMeta[status].variant}>
-          {statusMeta[status].label}
-        </Badge>
-      </div>
-
-      <div className="grid gap-2 text-xs text-muted-foreground">
-        <div className="flex items-center justify-between">
-          <span>Simulated time</span>
-          <span className="font-medium text-foreground">
-            {formatTimeShort(nowMs)}
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span>Token expiry (simulated)</span>
-          <span className="font-medium text-foreground">{expLabel}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span>Time remaining</span>
-          <span className="font-medium text-foreground">
-            {status === "active" && effectiveExpMs
-              ? formatDuration(remainingMs)
-              : "—"}
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span>Time offset</span>
-          <span className="font-medium text-foreground">
-            {timeOffsetMs === 0
-              ? "0m"
-              : `${timeOffsetMs > 0 ? "+" : "-"}${formatDuration(
-                  Math.abs(timeOffsetMs),
-                )}`}
-          </span>
+          <Badge variant={statusMeta[status].variant}>
+            {statusMeta[status].label}
+          </Badge>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Button size="sm" variant="secondary" onClick={() => handleAdvanceTime(15 * 60 * 1000)}>
+      <div className="text-muted-foreground grid grid-cols-[1fr_auto] items-center justify-items-start gap-x-4 gap-y-2 text-xs">
+        <span>Simulated time</span>
+        <span className="text-foreground text-left font-medium">
+          {formatTimeShort(nowMs)}
+        </span>
+
+        <span>Token expiry (simulated)</span>
+        <span className="text-foreground text-left font-medium">
+          {expLabel}
+        </span>
+
+        <span>Time remaining</span>
+        <span className="text-foreground text-left font-medium">
+          {status === "active" && effectiveExpMs
+            ? formatDuration(remainingMs)
+            : "—"}
+        </span>
+
+        <span>Time offset</span>
+        <span className="text-foreground text-left font-medium">
+          {timeOffsetMs === 0
+            ? "0m"
+            : `${timeOffsetMs > 0 ? "+" : "-"}${formatDuration(
+                Math.abs(timeOffsetMs),
+              )}`}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => handleAdvanceTime(15 * 60 * 1000)}
+          className="w-full"
+        >
           +15m
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => handleAdvanceTime(60 * 60 * 1000)}>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => handleAdvanceTime(60 * 60 * 1000)}
+          className="w-full"
+        >
           +1h
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => handleAdvanceTime(6 * 60 * 60 * 1000)}>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => handleAdvanceTime(6 * 60 * 60 * 1000)}
+          className="w-full"
+        >
           +6h
         </Button>
-        <Button size="sm" variant="outline" onClick={handleExpireNow}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleExpireNow}
+          className="w-full"
+        >
           Expire now
         </Button>
-        <Button size="sm" onClick={handleRefresh}>
+        <Button size="sm" onClick={handleRefresh} className="w-full">
           Refresh token
         </Button>
-        <Button size="sm" variant="ghost" onClick={handleReset}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleReset}
+          className="w-full"
+        >
           Reset
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button size="sm" variant="outline" onClick={handleSimulateRequest}>
+      <div className="grid gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleSimulateRequest}
+          className="w-full"
+        >
           Simulate protected request
         </Button>
-        <span className="text-muted-foreground text-[11px]">
-          Uses the simulated clock; expired sessions log out on request.
-        </span>
       </div>
 
-      <div>
-        <div className="mb-2 text-xs font-semibold text-foreground">
+      <div className="space-y-2">
+        <div className="text-foreground text-xs font-semibold">
           Recent events
         </div>
         {events.length === 0 ? (
@@ -286,13 +305,13 @@ export function SessionLifecycleSimulator(): ReactElement {
             No simulation events yet.
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
             {events.map((event) => (
               <div
                 key={event.id}
-                className="flex items-start justify-between gap-3 rounded-md bg-background px-3 py-2 text-xs shadow-sm"
+                className="bg-background flex items-start justify-between gap-3 rounded-md px-3 py-2 text-xs shadow-sm"
               >
-                <div className="flex-1 text-foreground">{event.message}</div>
+                <div className="text-foreground flex-1">{event.message}</div>
                 <span className="text-muted-foreground shrink-0">
                   {event.timestamp}
                 </span>

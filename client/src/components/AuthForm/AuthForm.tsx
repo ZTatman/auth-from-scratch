@@ -179,9 +179,9 @@ export function AuthForm({
             />
             <Button
               type="button"
-              variant="ghost"
+              variant="link"
               size="sm"
-              className="absolute top-1/2 right-1 h-7 -translate-y-1/2 text-xs"
+              className="absolute top-1/2 right-2 h-7 -translate-y-1/2 px-0 text-xs text-primary hover:text-primary/80"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? "Hide" : "Show"}
