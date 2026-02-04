@@ -1,54 +1,25 @@
-// Types
+import { apiClient } from "../lib/api-client";
 import type { LoginResponse, RegisterResponse } from "@app/shared-types";
-import type { LoginForm, RegisterForm } from "../types";
+import type { LoginFormData, RegisterFormData } from "@app/shared-types";
 
 /**
- * Register a new user.
+ * Create a new user account using the provided registration data.
  *
- * @param formData - Username and password for registration
- * @returns RegisterResponse with user data on success, or error details on failure
+ * @param formData - User registration fields (e.g., name, email, password)
+ * @returns The API's `RegisterResponse` object containing registration result data
  */
 export async function register(
-  formData: RegisterForm,
+  formData: RegisterFormData,
 ): Promise<RegisterResponse> {
-  try {
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    return await response.json();
-  } catch (error) {
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : "Registration failed",
-    };
-  }
+  return apiClient.post<RegisterResponse>("/api/register", formData);
 }
 
 /**
- * Login with existing credentials.
+ * Authenticate a user with the provided credentials.
  *
- * @param formData - Username and password for login
- * @returns LoginResponse with user data and token on success, or error details on failure
+ * @param formData - Credentials and any fields required by the login endpoint
+ * @returns The server's `LoginResponse` payload returned after a successful login
  */
-export async function login(formData: LoginForm): Promise<LoginResponse> {
-  try {
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    return await response.json();
-  } catch (error) {
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : "Login failed",
-    };
-  }
+export async function login(formData: LoginFormData): Promise<LoginResponse> {
+  return apiClient.post<LoginResponse>("/api/login", formData);
 }
-
-// For compatibility with existing imports
-export const authApi = { register, login };

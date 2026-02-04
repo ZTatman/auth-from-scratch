@@ -2,13 +2,8 @@ import { useState, useCallback } from "react";
 
 // Types
 import type { LoginResponse, RegisterResponse } from "@app/shared-types";
-import type {
-  ActivityLogEntry,
-  LoginForm,
-  RegisterForm,
-  AuthFlowEntry,
-  AuthStep,
-} from "../../types";
+import type { ActivityLogEntry, AuthFlowEntry, AuthStep } from "../../types";
+import type { LoginFormData, RegisterFormData } from "@app/shared-types";
 import {
   createLoginSteps,
   createRegisterSteps,
@@ -19,7 +14,7 @@ import {
 import { useRegister, useUser } from "../../hooks";
 
 // API
-import { authApi } from "../../api/auth";
+import { login as loginApi } from "../../api/auth";
 
 // Utils
 import { saveToken, saveUser } from "../../utils/user";
@@ -352,7 +347,7 @@ export function AuthPage() {
    * Handle login form submission with flow visualization.
    * Note: Does NOT auto-redirect. User must click "Continue" to complete login.
    */
-  const handleLogin = async (data: LoginForm): Promise<boolean> => {
+  const handleLogin = async (data: LoginFormData): Promise<boolean> => {
     const flowId = generateFlowId();
     const newFlow: AuthFlowEntry = {
       id: flowId,
@@ -374,7 +369,7 @@ export function AuthPage() {
     try {
       // Call API directly instead of using useLogin hook
       // This prevents auto-redirect so user can see the flow
-      const result = await runLoginFlowSteps(flowId, () => authApi.login(data));
+      const result = await runLoginFlowSteps(flowId, () => loginApi(data));
 
       // Update flow with response
       updateFlow(flowId, {
@@ -422,7 +417,7 @@ export function AuthPage() {
   /**
    * Handle register form submission with flow visualization.
    */
-  const handleRegister = async (data: RegisterForm): Promise<void> => {
+  const handleRegister = async (data: RegisterFormData): Promise<void> => {
     const flowId = generateFlowId();
 
     const newFlow: AuthFlowEntry = {
@@ -499,7 +494,7 @@ export function AuthPage() {
       {/* Split-screen layout */}
       <div className="grid flex-1 grid-cols-1 gap-6 p-6 md:grid-cols-[2fr_3fr]">
         {/* Left Panel - Auth Form */}
-        <Card className="h-fit border border-border/60">
+        <Card className="border-border/60 h-fit border">
           <CardHeader>
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription>
@@ -516,7 +511,7 @@ export function AuthPage() {
         </Card>
 
         {/* Right Panel - Auth Flow Visualization */}
-        <Card className="flex flex-col border border-border/60">
+        <Card className="border-border/60 flex flex-col border">
           <CardHeader>
             <CardTitle className="text-2xl">Authentication Flow</CardTitle>
             <CardDescription>
