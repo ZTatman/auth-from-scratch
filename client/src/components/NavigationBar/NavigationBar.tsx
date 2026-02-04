@@ -14,19 +14,22 @@ export function NavigationBar(): ReactElement {
   const { user, isAuthenticated, logout } = useUser();
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-background/90 p-4 shadow-sm backdrop-blur">
+    <div className="bg-background/90 sticky top-0 z-50 w-full p-4 shadow-sm backdrop-blur">
       <div className="container mx-auto flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold text-foreground hover:opacity-80">
+        <Link
+          to="/"
+          className="text-foreground text-2xl font-bold hover:opacity-80"
+        >
           Auth From Scratch
         </Link>
 
         {isAuthenticated && user && (
           <div className="flex items-center gap-4">
             <Link
-              to="/dashboard"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground hover:underline"
+              to="/"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium hover:underline"
             >
-              Dashboard
+              Home
             </Link>
 
             <div className="relative">
@@ -42,17 +45,17 @@ export function NavigationBar(): ReactElement {
               <div
                 id="user-menu"
                 popover="auto"
-                className="user-menu-popover w-48 rounded-md bg-popover text-popover-foreground shadow-lg"
+                className="user-menu-popover bg-popover text-popover-foreground w-48 rounded-md shadow-lg"
               >
-                <div className="border-b border-border px-4 py-2 text-xs text-muted-foreground">
+                <div className="border-border text-muted-foreground border-b px-4 py-2 text-xs">
                   Signed in as <br />
-                  <span className="font-bold text-foreground">
+                  <span className="text-foreground font-bold">
                     {user.username}
                   </span>
                 </div>
                 <Link
                   to="/profile"
-                  className="flex w-full items-center px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                  className="text-foreground hover:bg-muted flex w-full items-center px-4 py-2 text-sm transition-colors"
                 >
                   <svg
                     className="mr-3 h-4 w-4"
@@ -71,7 +74,7 @@ export function NavigationBar(): ReactElement {
                 </Link>
                 <button
                   onClick={() => logout()}
-                  className="flex w-full items-center px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                  className="text-destructive hover:bg-destructive/10 flex w-full items-center px-4 py-2 text-sm transition-colors"
                 >
                   <svg
                     className="mr-3 h-4 w-4"
