@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,7 @@ function decodeJWT(token: string): DecodedJWT | null {
 export function JWTDecoder() {
   const [copied, setCopied] = useState(false);
   const [token, setToken] = useState("");
+  const lastDecodedTokenRef = useRef<string | null>(null);
 
   const trimmedToken = token.trim();
   const decoded = useMemo(
@@ -52,10 +54,29 @@ export function JWTDecoder() {
 
   const handleCopy = async () => {
     if (!trimmedToken) return;
-    await navigator.clipboard.writeText(trimmedToken);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(trimmedToken);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Token copied to clipboard.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to copy token.",
+      );
+    }
   };
+
+  useEffect(() => {
+    if (!decoded) {
+      lastDecodedTokenRef.current = null;
+      return;
+    }
+
+    if (trimmedToken !== lastDecodedTokenRef.current) {
+      toast.success("Token decoded.");
+      lastDecodedTokenRef.current = trimmedToken;
+    }
+  }, [decoded, trimmedToken]);
 
   return (
     <div className="space-y-4">

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { toast } from "sonner";
 
 // Components
 import { Badge } from "@/components/ui/badge";
@@ -190,6 +191,7 @@ export function SessionLifecycleSimulator(): ReactElement {
     }
     if (status === "expired") {
       pushEvent("Token expired: client logs out.", "warning");
+      toast.warning("Session expired. You have been signed out.");
       logout();
       return;
     }

@@ -31,17 +31,68 @@ fi
 echo -e "${GREEN}✓ docker-compose is available${NC}"
 echo ""
 
-# Ask user if they want to rebuild
-echo -e "${BLUE}Do you want to rebuild the images? (recommended for first run)${NC}"
-read -p "Rebuild? (y/n): " -n 1 -r
-echo ""
+# Flags
+CLEAN_VOLUMES=false
+REBUILD=false
 
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${BLUE}Building and starting services...${NC}"
-    docker-compose up --build
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --clean)
+      CLEAN_VOLUMES=true
+      shift
+      ;;
+    --rebuild)
+      REBUILD=true
+      shift
+      ;;
+    -h|--help)
+      echo "Usage: ./start-docker.sh [--clean] [--rebuild]"
+      echo "  --clean    Remove node_modules volumes before starting"
+      echo "  --rebuild  Rebuild images before starting"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      echo "Use --help to see available options."
+      exit 1
+      ;;
+  esac
+done
+
+if [[ "$CLEAN_VOLUMES" == "true" ]]; then
+  echo -e "${BLUE}Stopping services and removing volumes...${NC}"
+  docker-compose down -v
+  echo ""
 else
-    echo -e "${BLUE}Starting services...${NC}"
-    docker-compose up
+  # Ask user if they want to clean node_modules volume
+  echo -e "${BLUE}Do you want to clean the node_modules volume?${NC}"
+  echo -e "${BLUE}Choose this if you added/updated dependencies and Docker keeps using stale node_modules.${NC}"
+  read -p "Clean node_modules volume? (y/n): " -n 1 -r
+  echo ""
+
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo -e "${BLUE}Stopping services and removing volumes...${NC}"
+      docker-compose down -v
+      echo ""
+  fi
+fi
+
+if [[ "$REBUILD" == "true" ]]; then
+  echo -e "${BLUE}Building and starting services...${NC}"
+  docker-compose up --build
+else
+  # Ask user if they want to rebuild
+  echo -e "${BLUE}Do you want to rebuild the images? (recommended after dependency changes)${NC}"
+  read -p "Rebuild? (y/n): " -n 1 -r
+  echo ""
+
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+      echo -e "${BLUE}Building and starting services...${NC}"
+      docker-compose up --build
+  else
+      echo -e "${BLUE}Starting services...${NC}"
+      docker-compose up
+  fi
 fi
 
 # This will only execute if docker-compose exits
@@ -49,4 +100,3 @@ echo ""
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}  Services stopped${NC}"
 echo -e "${BLUE}========================================${NC}"
-

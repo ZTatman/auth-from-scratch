@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
 
 // Zod validation
 import {
@@ -120,6 +121,7 @@ export function AuthForm({
             requirement: "password and confirmPassword must match",
           },
         ]);
+        toast.error("Password confirmation does not match.");
       }
     }
   };

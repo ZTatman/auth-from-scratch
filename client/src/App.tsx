@@ -7,6 +7,7 @@ import {
   Link,
   useNavigate,
 } from "react-router-dom";
+import { toast } from "sonner";
 
 // Hooks
 import { useDeleteAccount, useGetProfile, useUser } from "./hooks";
@@ -124,7 +125,10 @@ function ProfilePage() {
     content = (
       <ProfileCard
         user={profile}
-        onLogout={logout}
+        onLogout={() => {
+          logout();
+          toast.success("Signed out");
+        }}
         onDeleteAccount={async () => {
           const result = await deleteAccountMutation.mutateAsync();
           if (result.success) {
