@@ -4,186 +4,123 @@ A full-stack authentication system built from scratch with React, Express, Prism
 
 ## Overview
 
----
-
-This project demonstrates how to build a complete authentication system without relying on third-party auth libraries. It includes user registration, login, password hashing with bcrypt, and session management using JWT tokens.
+This project demonstrates how to build a complete authentication system without relying on third-party auth libraries. It includes user registration, login, password hashing with bcryptjs, and JWT-based authentication for protected routes.
 
 ## Features
 
-- 🔐 **Custom Authentication** - Self-rolled auth implementation from the ground up
-- 🎨 **Modern UI** - Clean React interface with Tailwind CSS
-- 🔄 **Real-time Activity Log** - Track authentication events as they happen
-- 🎲 **Random Credential Generator** - Generate test credentials with one click
-- 📋 **Copy to Clipboard** - Easy credential copying for testing
-- 🔒 **Secure Password Handling** - Bcrypt hashing with proper salt rounds
-- 🎯 **TypeScript Throughout** - Full type safety on frontend and backend
-- 🐳 **Docker Support** - PostgreSQL database via Docker Compose
+- Custom authentication from the ground up
+- Clean React UI with Tailwind CSS
+- Real-time activity log for auth events
+- Random credential generator for quick testing
+- Copy-to-clipboard for generated credentials
+- Password hashing with bcryptjs
+- TypeScript on frontend and backend
+- Docker Compose setup for database, server, and client
 
 ## Tech Stack
 
-### Frontend
+Frontend
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- React Query
 
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **Fetch API** for HTTP requests
-
-### Backend
-
-- **Express.js** with TypeScript
-- **Prisma ORM** for database management
-- **PostgreSQL** database
-- **bcrypt** for password hashing
-- **jsonwebtoken** for JWT tokens
-- **cookie-parser** for session management
+Backend
+- Express 5 + TypeScript
+- Prisma ORM
+- PostgreSQL
+- bcryptjs
+- jsonwebtoken
 
 ## Project Structure
 
 ```
 ├── client/                 # React frontend
 │   ├── src/
-│   │   ├── components/     # React components
-│   │   │   ├── ActivityLog/
-│   │   │   ├── AuthForm/
-│   │   │   ├── CopyButton/
-│   │   │   ├── GenerateCredentialsSection/
-│   │   │   └── ToggleSwitch/
-│   │   ├── api/           # API client functions
-│   │   ├── types/         # TypeScript type definitions
-│   │   └── App.tsx        # Main app component
+│   │   ├── components/
+│   │   ├── api/
+│   │   ├── types/
+│   │   └── App.tsx
 │   └── package.json
-│
-├── server/                # Express backend
+├── server/                 # Express backend
 │   ├── db/
-│   │   ├── client.ts      # Prisma client
-│   │   └── repositories/  # Database repositories
 │   ├── prisma/
-│   │   ├── schema.prisma  # Database schema
-│   │   └── migrations/    # Database migrations
-│   └── server.ts          # Express server
-│
-├── docker-compose.yml     # PostgreSQL container
-└── package.json           # Root package.json for scripts
+│   └── server.ts
+├── packages/
+│   └── shared-types/
+├── docker-compose.yml
+└── package.json
 ```
 
 ## Getting Started
 
-### Prerequisites
+Prerequisites
+- Node.js 18+
+- Docker Desktop
+- npm
 
-- Node.js 18+ installed
-- Docker and Docker Compose installed
-- npm or yarn package manager
+### Option 1: Docker Compose
 
-### Option 1: Docker Compose (Recommended)
-
-Run the entire application stack with a single command:
+Run the full stack with Docker Compose:
 
 ```bash
 docker-compose up --build
 ```
 
-This will start:
+Services started:
+- Client at http://localhost:3000
+- API at http://localhost:3001
+- Postgres at localhost:5432
 
-- PostgreSQL database on `http://localhost:5432`
-- Backend API on `http://localhost:3001`
-- Frontend on `http://localhost:3000`
-
-For detailed Docker instructions, see [DOCKER_SETUP.md](./DOCKER_SETUP.md).
+For more details, see `DOCKER_SETUP.md` and `DOCKER_QUICK_REFERENCE.md`.
 
 ### Option 2: Local Development
 
-1. **Clone the repository**
+1. Install dependencies
 
-   ```bash
-   git clone https://github.com/ZTatman/auth-from-scratch.git
-   cd auth-from-scratch
-   ```
+```bash
+npm install
+cd client && npm install
+cd ../server && npm install
+```
 
-2. **Install dependencies**
+2. Start Postgres
 
-   ```bash
-   cd client && npm install
-   cd ../server && npm install
-   cd ..
-   ```
+```bash
+docker-compose up postgres -d
+```
 
-3. **Start PostgreSQL database**
+3. Create `server/.env`
 
-   ```bash
-   docker-compose up postgres -d
-   ```
+```env
+DATABASE_URL=postgresql://dev:devpass@localhost:5432/auth_db
+JWT_SECRET=your-secret-jwt-key-change-this-in-production
+PORT=3001
+```
 
-4. **Set up environment variables**
+4. Run migrations
 
-   Create a `.env` file in the `server/` directory:
+```bash
+cd server
+npm run prisma:migrate
+```
 
-   ```env
-   DATABASE_URL=postgresql://dev:devpass@localhost:5432/auth_db
-   JWT_SECRET=your-secret-jwt-key-change-this-in-production
-   PORT=3001
-   ```
+5. Start the dev servers
 
-5. **Run database migrations**
-
-   ```bash
-   cd server
-   npx prisma migrate deploy
-   cd ..
-   ```
-
-6. **Start the development servers**
-
-   ```bash
-   npm start
-   ```
-
-   This will start:
-
-   - Frontend on `http://localhost:3000`
-   - Backend on `http://localhost:3001`
+```bash
+npm run start
+```
 
 ## Usage
 
-### Register a New User
-
-1. Navigate to `http://localhost:5173`
-2. Toggle to "Register" mode
-3. Enter a username and password (min 6 characters)
-4. Or click "Generate random credentials" for test credentials
-5. Click "Register"
-
-### Login
-
-1. Toggle to "Login" mode
-2. Enter your credentials
-3. Click "Login"
-
-### Activity Log
-
-The activity log at the bottom shows:
-
-- Registration attempts and results
-- Login attempts and results
-- Error messages with requirements
-- JWT tokens (for debugging)
-
-## Database Schema
-
-```prisma
-model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-```
+- Open the app at http://localhost:3000
+- Register a new account or use the random credential generator
+- Log in to receive a JWT token
+- Protected routes read the token from the `Authorization: Bearer <token>` header
 
 ## API Endpoints
 
-### POST `/api/register`
-
-Register a new user
+POST `/api/register`
 
 ```json
 {
@@ -193,9 +130,7 @@ Register a new user
 }
 ```
 
-### POST `/api/login`
-
-Login an existing user
+POST `/api/login`
 
 ```json
 {
@@ -204,79 +139,54 @@ Login an existing user
 }
 ```
 
-## Security Features
+GET `/api/profile`
 
-- ✅ Password hashing with bcrypt (10 salt rounds)
-- ✅ JWT tokens generated on login
-- ✅ Password confirmation on registration
-- ✅ Unique username constraints
-- ✅ Input validation and sanitization
-- ✅ TypeScript for type safety
+Requires an `Authorization: Bearer <token>` header.
 
-## Work in Progress
+## Database Schema
 
-This project is actively being developed. Features currently in progress or planned:
-
-- 🚧 **Session Management** - Implementing proper session handling
-- 🚧 **HTTP-only Cookies** - Secure cookie-based authentication
-- 🚧 **Protected Routes** - Frontend route protection for authenticated users
-- 🚧 **Token Refresh** - Automatic token refresh mechanism
-- 🚧 **Logout Functionality** - Proper session termination
-- 🚧 **Remember Me** - Persistent login option
-
-**Current State:** The application generates JWT tokens but does not yet implement full session management or use cookies. Tokens are currently returned in the response body for demonstration purposes.
-
-## Development
-
-### Available Scripts
-
-```bash
-# Install all dependencies (root, client, server)
-npm install
-
-# Start both frontend and backend
-npm run dev
-
-# Start only frontend
-npm run dev:client
-
-# Start only backend
-npm run dev:server
-
-# Build for production
-npm run build
-
-# Run Prisma Studio (database GUI)
-cd server && npx prisma studio
+```prisma
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
 ```
 
-### Environment Variables
+## Scripts
 
-Create a `.env` file in the `server/` directory:
+Root
+- `npm run start` runs client and server in watch mode
+- `npm run build` builds client and server
+- `npm run format` formats client and server
 
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/authdb"
-JWT_SECRET="your-secret-key-here"
-PORT=3000
-```
+Client
+- `npm run dev`
+- `npm run build`
+- `npm run lint`
+- `npm run format`
+- `npm run preview`
 
-## Contributing
+Server
+- `npm run start`
+- `npm run dev`
+- `npm run build`
+- `npm run format`
+- `npm run prisma:migrate`
+- `npm run prisma:studio`
 
-This is a learning project, but contributions are welcome! Feel free to:
+## Work In Progress
 
-- Report bugs
-- Suggest new features
-- Submit pull requests
-- Improve documentation
+- Cookie-based auth
+- Refresh tokens
+- Logout
+- Remember me
 
 ## License
 
-MIT License - feel free to use this project for learning or as a starting point for your own applications.
+MIT
 
 ## Acknowledgments
 
-Built as a demonstration of fundamental authentication concepts without relying on third-party auth libraries like Passport.js or Auth0.
-
----
-
-**Note:** This is an educational project. For production applications, consider using established authentication solutions and following additional security best practices.
+Built as a demonstration of fundamental authentication concepts without relying on third-party auth libraries.

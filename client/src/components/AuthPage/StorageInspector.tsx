@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,9 +44,16 @@ export function StorageInspector() {
 
   const handleCopy = async () => {
     if (storedToken) {
-      await navigator.clipboard.writeText(storedToken);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(storedToken);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        toast.success("Token copied to clipboard.");
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to copy token.",
+        );
+      }
     }
   };
 

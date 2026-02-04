@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface CopyButtonProps {
   textToCopy: string;
@@ -13,8 +14,10 @@ export function CopyButton({ textToCopy, className = "" }: CopyButtonProps) {
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      toast.success("Copied to clipboard.");
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to copy.");
     }
   };
 

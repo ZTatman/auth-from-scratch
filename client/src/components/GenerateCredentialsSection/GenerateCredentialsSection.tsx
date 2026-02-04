@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 // Components
 import { Button } from "../ui/button";
@@ -18,11 +19,18 @@ export function GenerateCredentialsSection({
 
   const handleCopy = async () => {
     if (!generatedCredentials) return;
-    await navigator.clipboard.writeText(
-      `Username: ${generatedCredentials.username}\nPassword: ${generatedCredentials.password}`,
-    );
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(
+        `Username: ${generatedCredentials.username}\nPassword: ${generatedCredentials.password}`,
+      );
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Credentials copied to clipboard.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to copy credentials.",
+      );
+    }
   };
   const getSecureRandomInt = (max: number): number => {
     if (max <= 0) {
@@ -91,6 +99,7 @@ export function GenerateCredentialsSection({
 
     setGeneratedCredentials({ username, password });
     onCredentialsGenerated(username, password);
+    toast.success("New credentials generated.");
   };
 
   /**

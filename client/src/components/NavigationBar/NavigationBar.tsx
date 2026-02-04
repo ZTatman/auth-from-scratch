@@ -1,5 +1,6 @@
 import { useMemo, type ReactElement } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { useUser } from "../../hooks";
 
 // Components
@@ -15,6 +16,10 @@ import { Button } from "../ui/button";
  */
 export function NavigationBar(): ReactElement {
   const { user, isAuthenticated, logout } = useUser();
+  const handleLogout = () => {
+    logout();
+    toast.success("Signed out");
+  };
 
   return (
     <div className="bg-background/90 sticky top-0 z-50 w-full p-4 shadow-sm backdrop-blur">
@@ -84,7 +89,7 @@ export function NavigationBar(): ReactElement {
                   Profile
                 </Link>
                 <Button
-                  onClick={() => logout()}
+                  onClick={handleLogout}
                   variant="ghost"
                   className="text-destructive hover:bg-destructive/10 w-full justify-start px-4 text-sm"
                 >
