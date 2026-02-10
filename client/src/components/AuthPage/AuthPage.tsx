@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { toast } from "sonner";
 
 // Types
 import type { LoginResponse, RegisterResponse } from "@app/shared-types";
@@ -386,9 +387,14 @@ export function AuthPage() {
       setActivityLog((prev) => [...prev, createLogEntry(result, "login")]);
 
       // Handle successful login
-      if (result.success && result.data.token) {
-        // 1. Immediately log user in (updates Navbar)
-        login(result.data.user, result.data.token);
+      if (result.success) {
+        if (result.data.token) {
+          // 1. Immediately log user in (updates Navbar)
+          login(result.data.user, result.data.token);
+        }
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
       }
 
       return result.success;
@@ -397,6 +403,8 @@ export function AuthPage() {
         status: "error",
         message: error instanceof Error ? error.message : "Login failed",
       });
+
+      toast.error(error instanceof Error ? error.message : "Login failed");
 
       setActivityLog((prev) => [
         ...prev,
@@ -456,12 +464,22 @@ export function AuthPage() {
         message: result.message,
       });
 
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+
       setActivityLog((prev) => [...prev, createLogEntry(result, "register")]);
     } catch (error) {
       updateFlow(flowId, {
         status: "error",
         message: error instanceof Error ? error.message : "Registration failed",
       });
+
+      toast.error(
+        error instanceof Error ? error.message : "Registration failed",
+      );
 
       setActivityLog((prev) => [
         ...prev,
