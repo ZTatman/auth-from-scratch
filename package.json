@@ -12,7 +12,7 @@
     "build": "concurrently -n \"server,client\" -c \"blue,green\" \"cd server && npm run build\" \"cd client && npm run build\"",
     "format": "cd server && npm run format && cd client && npm run format",
     "test": "npm -w server test && npm -w client test",
-    "test:coverage": "npm -w server test -- --run --coverage && npm -w client test -- --run --coverage",
+    "test:coverage": "npm -w server test -- --run --coverage && npm -w client test -- --run --coverage --maxWorkers=1",
     "test:browser": "npm -w client run test:browser --"
   },
   "devDependencies": {
