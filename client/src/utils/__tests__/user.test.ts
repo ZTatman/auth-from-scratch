@@ -37,6 +37,7 @@ function installLocalStorageMock(): void {
 describe("user storage utilities", () => {
   beforeEach(() => {
     installLocalStorageMock();
+    // Intentional: verify remove helpers remain safe/idempotent on empty storage.
     removeToken();
     removeUser();
   });

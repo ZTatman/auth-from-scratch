@@ -12,6 +12,7 @@ import { toast } from "sonner";
 // Hooks
 import { useDeleteAccount, useGetProfile } from "./hooks/api/useProfile";
 import useUser from "./hooks/useUser";
+import { ApiError } from "./lib/api-client";
 
 // Components
 import { NavigationBar } from "./components/NavigationBar/NavigationBar";
@@ -102,18 +103,10 @@ function ProfilePage() {
   );
   const deleteAccountMutation = useDeleteAccount();
 
-  // Handle token-related errors by logging out
+  // Handle explicit authorization failures by logging out.
   useEffect(() => {
-    if (error) {
-      const errorMessage = error.message?.toLowerCase() || "";
-      if (
-        errorMessage.includes("token") ||
-        errorMessage.includes("unauthorized") ||
-        errorMessage.includes("expired") ||
-        errorMessage.includes("access")
-      ) {
-        logout();
-      }
+    if (error instanceof ApiError && [401, 403].includes(error.status)) {
+      logout();
     }
   }, [error, logout]);
 

@@ -147,6 +147,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        // Bootstrap validation runs before hook-based API wrappers are initialized.
+        // We use direct fetch here to avoid coupling this effect to context-aware hooks.
         const response = await fetch("/api/profile", {
           method: "GET",
           headers: {
@@ -191,9 +193,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [
     initialAuthState.authToken,
     initialAuthState.hasCandidateSession,
-    setAuthToken,
-    setIsAuthenticated,
-    setUser,
   ]);
 
   const login = useCallback((user: SafeUser, authToken: string): void => {

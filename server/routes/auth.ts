@@ -19,6 +19,8 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
 const AUTH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const REGISTER_RATE_LIMIT_MAX_REQUESTS = 10;
+const LOGIN_RATE_LIMIT_MAX_REQUESTS = 10;
 const AUTH_RATE_LIMIT_MESSAGE = {
   success: false as const,
   message: "Too many authentication attempts. Please try again later.",
@@ -26,7 +28,7 @@ const AUTH_RATE_LIMIT_MESSAGE = {
 
 const registerRateLimiter = rateLimit({
   windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
-  max: 5,
+  max: REGISTER_RATE_LIMIT_MAX_REQUESTS,
   standardHeaders: true,
   legacyHeaders: false,
   message: AUTH_RATE_LIMIT_MESSAGE,
@@ -34,7 +36,7 @@ const registerRateLimiter = rateLimit({
 
 const loginRateLimiter = rateLimit({
   windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
-  max: 10,
+  max: LOGIN_RATE_LIMIT_MAX_REQUESTS,
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
