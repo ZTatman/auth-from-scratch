@@ -1,5 +1,12 @@
 import type { SafeUser } from "@app/shared-types";
 
+export const AUTH_STORAGE_EVENT = "auth-storage";
+
+function notifyAuthStorage(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(AUTH_STORAGE_EVENT));
+}
+
 /**
  * Stores the provided authentication token in localStorage under the "auth_token" key.
  *
@@ -7,6 +14,7 @@ import type { SafeUser } from "@app/shared-types";
  */
 export function saveToken(auth_token: string): void {
   localStorage.setItem("auth_token", auth_token);
+  notifyAuthStorage();
 }
 
 export function getToken(): string | null {
@@ -26,6 +34,7 @@ export function getToken(): string | null {
 export function removeToken(): void {
   try {
     localStorage.removeItem("auth_token");
+    notifyAuthStorage();
   } catch (error) {
     console.error("Failed to remove auth_token: ", error);
   }
@@ -55,11 +64,13 @@ export function getUser(): SafeUser | null {
  */
 export function saveUser(user: SafeUser): void {
   localStorage.setItem("auth_user", JSON.stringify(user));
+  notifyAuthStorage();
 }
 
 export function removeUser(): void {
   try {
     localStorage.removeItem("auth_user");
+    notifyAuthStorage();
   } catch (error) {
     console.error("Failed to remove user: ", error);
   }

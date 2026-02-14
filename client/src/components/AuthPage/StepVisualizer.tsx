@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { AuthStep, AuthStepStatus } from "../../types";
 import { Badge } from "@/components/ui/badge";
 
@@ -8,7 +9,9 @@ interface StepVisualizerProps {
 /**
  * Visualizes authentication flow steps with status indicators.
  */
-export function StepVisualizer({ steps }: StepVisualizerProps) {
+export const StepVisualizer = memo(function StepVisualizer({
+  steps,
+}: StepVisualizerProps) {
   return (
     <div className="relative space-y-3">
       {steps.map((step, index) => (
@@ -21,7 +24,7 @@ export function StepVisualizer({ steps }: StepVisualizerProps) {
       ))}
     </div>
   );
-}
+});
 
 interface StepItemProps {
   step: AuthStep;
