@@ -1,6 +1,7 @@
 import { Router, Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
 import { userRepository } from "../db/repositories/userRepository";
 import { toSafeUser } from "../utils/response";
 
@@ -17,6 +18,30 @@ import type { RegisterResponse, LoginResponse } from "@app/shared-types";
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 const DUMMY_HASH = bcrypt.hashSync("dummy-password", 10);
+const AUTH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const REGISTER_RATE_LIMIT_MAX_REQUESTS = 10;
+const LOGIN_RATE_LIMIT_MAX_REQUESTS = 10;
+const AUTH_RATE_LIMIT_MESSAGE = {
+  success: false as const,
+  message: "Too many authentication attempts. Please try again later.",
+};
+
+const registerRateLimiter = rateLimit({
+  windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
+  max: REGISTER_RATE_LIMIT_MAX_REQUESTS,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: AUTH_RATE_LIMIT_MESSAGE,
+});
+
+const loginRateLimiter = rateLimit({
+  windowMs: AUTH_RATE_LIMIT_WINDOW_MS,
+  max: LOGIN_RATE_LIMIT_MAX_REQUESTS,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: AUTH_RATE_LIMIT_MESSAGE,
+});
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is required");
@@ -153,7 +178,7 @@ export const loginHandler = async (
   }
 };
 
-router.post("/register", registerHandler);
-router.post("/login", loginHandler);
+router.post("/register", registerRateLimiter, registerHandler);
+router.post("/login", loginRateLimiter, loginHandler);
 
 export default router;

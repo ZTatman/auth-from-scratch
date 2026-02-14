@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "./App";
+import { ApiError } from "./lib/api-client";
 
 const {
   useUserMock,
@@ -86,6 +87,7 @@ describe("App", () => {
     vi.clearAllMocks();
 
     useUserMock.mockReturnValue({
+      isAuthInitialized: true,
       isAuthenticated: false,
       user: null,
       authToken: null,
@@ -117,6 +119,7 @@ describe("App", () => {
 
   it("renders welcome message for authenticated home route", async () => {
     useUserMock.mockReturnValue({
+      isAuthInitialized: true,
       isAuthenticated: true,
       user: {
         id: "user-1",
@@ -136,6 +139,7 @@ describe("App", () => {
 
   it("renders profile loading state", async () => {
     useUserMock.mockReturnValue({
+      isAuthInitialized: true,
       isAuthenticated: true,
       user: {
         id: "user-1",
@@ -160,6 +164,7 @@ describe("App", () => {
 
   it("renders profile error state and logs user out for token errors", async () => {
     useUserMock.mockReturnValue({
+      isAuthInitialized: true,
       isAuthenticated: true,
       user: {
         id: "user-1",
@@ -173,7 +178,7 @@ describe("App", () => {
     useGetProfileMock.mockReturnValue({
       data: undefined,
       isLoading: false,
-      error: new Error("token expired"),
+      error: new ApiError("token expired", 401),
     });
 
     window.history.pushState({}, "", "/profile");
@@ -189,6 +194,7 @@ describe("App", () => {
     mutateAsyncMock.mockResolvedValue({ success: true });
 
     useUserMock.mockReturnValue({
+      isAuthInitialized: true,
       isAuthenticated: true,
       user: {
         id: "user-1",
@@ -201,13 +207,9 @@ describe("App", () => {
 
     useGetProfileMock.mockReturnValue({
       data: {
-        success: true,
-        message: "Profile loaded",
-        data: {
-          id: "user-1",
-          username: "alice",
-          createdAt: "2024-01-01T00:00:00.000Z",
-        },
+        id: "user-1",
+        username: "alice",
+        createdAt: "2024-01-01T00:00:00.000Z",
       },
       isLoading: false,
       error: null,

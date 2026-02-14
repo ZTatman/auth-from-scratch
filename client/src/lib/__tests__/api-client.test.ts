@@ -54,6 +54,7 @@ describe("ApiClient", () => {
     expect(result).toEqual({
       success: false,
       message: "Authentication required",
+      status: 401,
     });
   });
 
@@ -97,6 +98,7 @@ describe("ApiClient", () => {
     expect(result).toEqual({
       success: false,
       message: "Validation failed",
+      status: 400,
     });
   });
 
@@ -118,6 +120,7 @@ describe("ApiClient", () => {
     expect(result).toEqual({
       success: false,
       message: "Request Failed: 500 Internal Server Error",
+      status: 500,
     });
   });
 

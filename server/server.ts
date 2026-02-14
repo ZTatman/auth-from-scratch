@@ -1,15 +1,54 @@
 import "dotenv/config";
 import express, { Application } from "express";
-import cors from "cors";
+import cors, { type CorsOptions } from "cors";
 import { authRoutes, profileRoutes } from "./routes";
 
 // Constants
 const app: Application = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3001;
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow clients without an Origin header (e.g., curl, health checks).
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error("CORS origin denied"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.disable("x-powered-by");
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "10kb" }));
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; base-uri 'self'; frame-ancestors 'none'",
+  );
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload",
+    );
+  }
+
+  next();
+});
 
 // API Routes
 app.use("/api", authRoutes);

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 // Hooks
 import { useDeleteAccount, useGetProfile } from "./hooks/api/useProfile";
 import useUser from "./hooks/useUser";
+import { ApiError } from "./lib/api-client";
 
 // Components
 import { NavigationBar } from "./components/NavigationBar/NavigationBar";
@@ -97,32 +98,22 @@ function HomePage() {
 function ProfilePage() {
   const { authToken, logout } = useUser();
   const navigate = useNavigate();
-  const {
-    data: profileData,
-    isLoading,
-    error,
-  } = useGetProfile(authToken || undefined);
+  const { data: profile, isLoading, error } = useGetProfile(
+    authToken || undefined,
+  );
   const deleteAccountMutation = useDeleteAccount();
 
-  // Handle token-related errors by logging out
+  // Handle explicit authorization failures by logging out.
   useEffect(() => {
-    if (error) {
-      const errorMessage = error.message?.toLowerCase() || "";
-      if (
-        errorMessage.includes("token") ||
-        errorMessage.includes("unauthorized") ||
-        errorMessage.includes("expired") ||
-        errorMessage.includes("access")
-      ) {
-        logout();
-      }
+    if (error instanceof ApiError && [401, 403].includes(error.status)) {
+      logout();
     }
   }, [error, logout]);
 
-  const profile = profileData?.success ? profileData.data : null;
-  const deleteError = deleteAccountMutation.data?.success
-    ? null
-    : deleteAccountMutation.data?.message || null;
+  const deleteError =
+    deleteAccountMutation.error instanceof Error
+      ? deleteAccountMutation.error.message
+      : null;
   let content: React.ReactNode;
 
   if (isLoading) {
@@ -143,19 +134,20 @@ function ProfilePage() {
   } else {
     content = (
       <ProfileCard
-        user={profile}
+        user={profile ?? null}
         onLogout={() => {
           logout();
           toast.success("Signed out");
         }}
         onDeleteAccount={async () => {
-          const result = await deleteAccountMutation.mutateAsync();
-          if (result.success) {
+          try {
+            await deleteAccountMutation.mutateAsync();
             logout();
             navigate("/auth", { replace: true });
             return true;
+          } catch {
+            return false;
           }
-          return false;
         }}
         isDeleting={deleteAccountMutation.isPending}
         deleteError={deleteError}
@@ -206,7 +198,11 @@ function ProfilePage() {
  * @returns The router with conditional routes based on auth state
  */
 function AppRoutes() {
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, isAuthInitialized } = useUser();
+
+  if (!isAuthInitialized) {
+    return <RouteFallback />;
+  }
 
   return (
     <Suspense fallback={<RouteFallback />}>

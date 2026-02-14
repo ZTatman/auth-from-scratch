@@ -143,10 +143,20 @@ describe("api hooks", () => {
     expect(queryWithoutToken.enabled).toBe(false);
   });
 
-  it("configures useDeleteAccount mutation", () => {
-    const { result } = renderHook(() => useDeleteAccount());
-    const mutation = result.current as unknown as { mutationFn: unknown };
+  it("configures useDeleteAccount mutation", async () => {
+    deleteAccountMock.mockResolvedValue({
+      success: true,
+      message: "deleted",
+      data: { userId: "user-1" },
+    });
 
-    expect(mutation.mutationFn).toBe(deleteAccountMock);
+    const { result } = renderHook(() => useDeleteAccount());
+    const mutation = result.current as unknown as {
+      mutationFn: () => Promise<{ userId: string }>;
+    };
+
+    expect(mutation.mutationFn).toBeTypeOf("function");
+    await expect(mutation.mutationFn()).resolves.toEqual({ userId: "user-1" });
+    expect(deleteAccountMock).toHaveBeenCalledTimes(1);
   });
 });
