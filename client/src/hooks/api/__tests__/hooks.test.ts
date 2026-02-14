@@ -51,7 +51,7 @@ describe("api hooks", () => {
       .mockImplementation(() => undefined);
 
     const { result } = renderHook(() => useLogin());
-    const mutation = result.current as {
+    const mutation = result.current as unknown as {
       mutationFn: unknown;
       onSuccess: (response: {
         success: boolean;
@@ -101,7 +101,7 @@ describe("api hooks", () => {
       .mockImplementation(() => undefined);
 
     const { result } = renderHook(() => useRegister());
-    const mutation = result.current as {
+    const mutation = result.current as unknown as {
       mutationFn: unknown;
       onSuccess: (data: unknown) => void;
       onError: (error: unknown) => void;
@@ -121,7 +121,7 @@ describe("api hooks", () => {
 
   it("configures useGetProfile query options", () => {
     const { result: withToken } = renderHook(() => useGetProfile("token"));
-    const queryWithToken = withToken.current as {
+    const queryWithToken = withToken.current as unknown as {
       queryKey: unknown[];
       queryFn: () => unknown;
       enabled: boolean;
@@ -136,13 +136,15 @@ describe("api hooks", () => {
     expect(queryWithToken.queryFn).toBeTypeOf("function");
 
     const { result: withoutToken } = renderHook(() => useGetProfile(undefined));
-    const queryWithoutToken = withoutToken.current as { enabled: boolean };
+    const queryWithoutToken = withoutToken.current as unknown as {
+      enabled: boolean;
+    };
     expect(queryWithoutToken.enabled).toBe(false);
   });
 
   it("configures useDeleteAccount mutation", () => {
     const { result } = renderHook(() => useDeleteAccount());
-    const mutation = result.current as { mutationFn: unknown };
+    const mutation = result.current as unknown as { mutationFn: unknown };
 
     expect(mutation.mutationFn).toBe(deleteAccountMock);
   });
