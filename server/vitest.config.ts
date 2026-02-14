@@ -10,11 +10,12 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text-summary", "json-summary"],
       reportsDirectory: "./coverage",
-      include: ["**/*.ts"],
+      include: ["routes/**/*.ts", "middleware/**/*.ts", "utils/**/*.ts"],
       exclude: [
         "**/*.test.ts",
         "**/*.spec.ts",
         "**/__tests__/**",
+        "dist/**",
         "generated/**",
         "prisma/**",
         "**/types/**",
