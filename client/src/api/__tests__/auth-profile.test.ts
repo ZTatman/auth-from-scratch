@@ -1,0 +1,65 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { login, register } from "../auth";
+import { deleteAccount, getProfile } from "../profile";
+
+const { apiClientMock } = vi.hoisted(() => ({
+  apiClientMock: {
+    get: vi.fn(),
+    post: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock("../../lib/api-client", () => ({
+  apiClient: apiClientMock,
+}));
+
+describe("auth/profile api wrappers", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("calls register endpoint", async () => {
+    apiClientMock.post.mockResolvedValueOnce({ success: true });
+
+    await register({
+      username: "alice",
+      password: "Password1!",
+      confirmPassword: "Password1!",
+    });
+
+    expect(apiClientMock.post).toHaveBeenCalledWith("/api/register", {
+      username: "alice",
+      password: "Password1!",
+      confirmPassword: "Password1!",
+    });
+  });
+
+  it("calls login endpoint", async () => {
+    apiClientMock.post.mockResolvedValueOnce({ success: true });
+
+    await login({ username: "alice", password: "Password1!" });
+
+    expect(apiClientMock.post).toHaveBeenCalledWith("/api/login", {
+      username: "alice",
+      password: "Password1!",
+    });
+  });
+
+  it("calls get profile endpoint with auth", async () => {
+    apiClientMock.get.mockResolvedValueOnce({ success: true });
+
+    await getProfile();
+
+    expect(apiClientMock.get).toHaveBeenCalledWith("/api/profile", true);
+  });
+
+  it("calls delete profile endpoint with auth", async () => {
+    apiClientMock.delete.mockResolvedValueOnce({ success: true });
+
+    await deleteAccount();
+
+    expect(apiClientMock.delete).toHaveBeenCalledWith("/api/profile", true);
+  });
+});
