@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -10,17 +10,36 @@ import {
 import { toast } from "sonner";
 
 // Hooks
-import { useDeleteAccount, useGetProfile, useUser } from "./hooks";
+import { useDeleteAccount, useGetProfile } from "./hooks/api/useProfile";
+import useUser from "./hooks/useUser";
 
 // Components
 import { NavigationBar } from "./components/NavigationBar/NavigationBar";
-import { AuthPage } from "./components/AuthPage";
 import { ProfileCard } from "./components/ProfileCard/ProfileCard";
 import { UserProvider } from "./components/UserContext/UserContext";
 import { Button } from "./components/ui/button";
 
 // Styles
 import "./App.css";
+
+const AuthPage = lazy(() =>
+  import("./components/AuthPage/AuthPage").then((module) => ({
+    default: module.AuthPage,
+  })),
+);
+const AuthFlowsPage = lazy(() =>
+  import("./components/AuthFlowsPage/AuthFlowsPage").then((module) => ({
+    default: module.AuthFlowsPage,
+  })),
+);
+
+function RouteFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+      Loading...
+    </div>
+  );
+}
 
 /**
  * Layout component that wraps pages with the navigation bar and common styling.
@@ -190,27 +209,30 @@ function AppRoutes() {
   const { isAuthenticated } = useUser();
 
   return (
-    <Routes>
-      {/* Public route (can be visited when authenticated to see success state) */}
-      <Route path="/auth" element={<AuthPage />} />
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        {/* Public route (can be visited when authenticated to see success state) */}
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth-flows" element={<AuthFlowsPage />} />
 
-      {/* Protected routes */}
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? <HomePage /> : <Navigate to="/auth" replace />
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />
-        }
-      />
+        {/* Protected routes */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? <HomePage /> : <Navigate to="/auth" replace />
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            isAuthenticated ? <ProfilePage /> : <Navigate to="/auth" replace />
+          }
+        />
 
-      {/* Catch-all */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useState, createContext, type ReactNode } from "react";
+import { useCallback, useMemo, useState, createContext, type ReactNode } from "react";
 import type { SafeUser } from "@app/shared-types";
 import * as userUtils from "../../utils/user";
 
@@ -60,7 +60,7 @@ function getInitialAuthState(): {
  */
 export function UserProvider({ children }: { children: ReactNode }) {
   // Initialize auth state synchronously from localStorage to prevent flash of login form
-  const initialAuthState = getInitialAuthState();
+  const [initialAuthState] = useState(getInitialAuthState);
 
   const [role, setRole] = useState<string>("default");
   const [user, setUser] = useState<SafeUser | null>(initialAuthState.user);
@@ -71,7 +71,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     initialAuthState.isAuthenticated,
   );
 
-  const login = (user: SafeUser, authToken: string): void => {
+  const login = useCallback((user: SafeUser, authToken: string): void => {
     // update localStorage
     userUtils.saveToken(authToken);
     userUtils.saveUser(user);
@@ -80,9 +80,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(user);
     setAuthToken(authToken);
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = (): void => {
+  const logout = useCallback((): void => {
     // clear localStorage
     userUtils.removeToken();
     userUtils.removeUser();
@@ -91,25 +91,39 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setAuthToken(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
-  const contextValue = {
-    // getters
-    role,
-    isAuthenticated,
-    user,
-    authToken,
+  const contextValue = useMemo(
+    () => ({
+      // getters
+      role,
+      isAuthenticated,
+      user,
+      authToken,
 
-    // setters
-    setRole,
-    setAuthToken,
-    setUser,
-    setIsAuthenticated,
+      // setters
+      setRole,
+      setAuthToken,
+      setUser,
+      setIsAuthenticated,
 
-    // auth methods
-    logout,
-    login,
-  };
+      // auth methods
+      logout,
+      login,
+    }),
+    [
+      role,
+      isAuthenticated,
+      user,
+      authToken,
+      setRole,
+      setAuthToken,
+      setUser,
+      setIsAuthenticated,
+      logout,
+      login,
+    ],
+  );
 
   return <UserContext value={contextValue}>{children}</UserContext>;
 }

@@ -23,29 +23,40 @@ export function NavigationBar(): ReactElement {
 
   return (
     <div className="bg-background/90 sticky top-0 z-50 w-full p-4 shadow-sm backdrop-blur">
-      <div className="container mx-auto flex items-center justify-between">
-        <Link
-          to="/"
-          className="text-foreground text-2xl font-bold hover:opacity-80"
-        >
-          Auth From Scratch
-        </Link>
-
-        {isAuthenticated && user && (
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="text-muted-foreground hover:text-foreground text-sm font-medium hover:underline"
-            >
-              Home
-            </Link>
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+          <Link
+            to="/"
+            className="text-foreground text-xl font-bold hover:opacity-80 sm:text-2xl"
+          >
+            Auth From Scratch
+          </Link>
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            {isAuthenticated ? (
+              <Link
+                to="/"
+                className="text-muted-foreground hover:text-foreground text-sm font-medium hover:underline"
+              >
+                Home
+              </Link>
+            ) : null}
             <Link
               to="/auth"
               className="text-muted-foreground hover:text-foreground text-sm font-medium hover:underline"
             >
               Auth
             </Link>
+            <Link
+              to="/auth-flows"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium hover:underline"
+            >
+              Flow Visualizer
+            </Link>
+          </div>
+        </div>
 
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-4">
             <div className="relative">
               {/* The Trigger Button - anchored */}
               <Button
@@ -111,7 +122,7 @@ export function NavigationBar(): ReactElement {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* CSS Anchor Positioning for the popover */}

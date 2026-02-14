@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { memo, useEffect, useMemo, useState, type ReactElement } from "react";
 import type { AuthFlowEntry } from "../../types";
 
 // shadcn components
@@ -112,7 +112,7 @@ interface AuthFlowEntryCardProps {
  * @param isActive - Whether this is the currently active flow
  * @returns JSX element
  */
-function AuthFlowEntryCard({
+const AuthFlowEntryCard = memo(function AuthFlowEntryCard({
   flow,
   isActive,
 }: AuthFlowEntryCardProps): ReactElement {
@@ -221,7 +221,7 @@ function AuthFlowEntryCard({
       </div>
     </div>
   );
-}
+});
 
 /**
  * Get the badge variant based on status.
