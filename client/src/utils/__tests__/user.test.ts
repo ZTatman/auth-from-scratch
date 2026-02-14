@@ -10,9 +10,36 @@ import {
   saveUser,
 } from "../user";
 
+function installLocalStorageMock(): void {
+  const store = new Map<string, string>();
+  const localStorageMock: Pick<
+    Storage,
+    "getItem" | "setItem" | "removeItem" | "clear"
+  > = {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      store.set(key, value);
+    },
+    removeItem: (key: string) => {
+      store.delete(key);
+    },
+    clear: () => {
+      store.clear();
+    },
+  };
+
+  Object.defineProperty(window, "localStorage", {
+    value: localStorageMock,
+    configurable: true,
+  });
+}
+
 describe("user storage utilities", () => {
   beforeEach(() => {
-    localStorage.clear();
+    installLocalStorageMock();
+    // Intentional: verify remove helpers remain safe/idempotent on empty storage.
+    removeToken();
+    removeUser();
   });
 
   it("saves and retrieves auth tokens with storage events", () => {
