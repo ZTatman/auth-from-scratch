@@ -82,6 +82,50 @@ describe("authenticateToken", () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  it("returns 401 for expired tokens", () => {
+    mockedJwt.verify = vi.fn((_token, _secret, callback) => {
+      const error = new Error("jwt expired") as Error & {
+        name: string;
+        expiredAt: string;
+      };
+      error.name = "TokenExpiredError";
+      error.expiredAt = new Date("2024-01-01T00:00:00.000Z").toISOString();
+      callback(error);
+    });
+
+    const req = { headers: { authorization: "Bearer token" } } as AuthenticatedRequest;
+    const res = createResponse();
+    const next = vi.fn() as unknown as NextFunction;
+
+    authenticateToken(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Token expired",
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("returns 403 for tokens with invalid payload shape", () => {
+    mockedJwt.verify = vi.fn((_token, _secret, callback) => {
+      callback(null, { userId: 1, username: "codex" });
+    });
+
+    const req = { headers: { authorization: "Bearer token" } } as AuthenticatedRequest;
+    const res = createResponse();
+    const next = vi.fn() as unknown as NextFunction;
+
+    authenticateToken(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Invalid token payload",
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it("attaches decoded payload and calls next for valid tokens", () => {
     mockedJwt.verify = vi.fn((_token, _secret, callback) => {
       callback(null, { userId: "user-1", username: "codex" });
