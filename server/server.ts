@@ -5,6 +5,7 @@ import { authRoutes, profileRoutes } from "./routes";
 
 // Constants
 const app: Application = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3001;
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
   .split(",")
