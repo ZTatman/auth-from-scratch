@@ -60,9 +60,6 @@ jobs:
       - name: Generate Prisma client
         run: cd server && npx prisma generate
 
-      - name: Install Vitest coverage provider
-        run: npm install --no-save @vitest/coverage-v8
-
       - name: Run server tests with coverage
         run: cd server && npm run test -- --run --coverage
 
