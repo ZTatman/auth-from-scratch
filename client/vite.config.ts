@@ -34,5 +34,23 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     clearMocks: true,
     restoreMocks: true,
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "json-summary"],
+      reportsDirectory: "./coverage",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.{test,spec}.{ts,tsx}",
+        "src/**/__tests__/**",
+        "src/main.tsx",
+        "src/components/ui/**",
+      ],
+      thresholds: {
+        lines: 75,
+        functions: 75,
+        statements: 75,
+        branches: 75,
+      },
+    },
   },
 });
