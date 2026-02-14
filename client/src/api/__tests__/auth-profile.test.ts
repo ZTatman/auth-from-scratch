@@ -21,9 +21,10 @@ describe("auth/profile api wrappers", () => {
   });
 
   it("calls register endpoint", async () => {
-    apiClientMock.post.mockResolvedValueOnce({ success: true });
+    const expected = { success: true };
+    apiClientMock.post.mockResolvedValueOnce(expected);
 
-    await register({
+    const result = await register({
       username: "alice",
       password: "Password1!",
       confirmPassword: "Password1!",
@@ -34,32 +35,39 @@ describe("auth/profile api wrappers", () => {
       password: "Password1!",
       confirmPassword: "Password1!",
     });
+    expect(result).toEqual(expected);
   });
 
   it("calls login endpoint", async () => {
-    apiClientMock.post.mockResolvedValueOnce({ success: true });
+    const expected = { success: true };
+    apiClientMock.post.mockResolvedValueOnce(expected);
 
-    await login({ username: "alice", password: "Password1!" });
+    const result = await login({ username: "alice", password: "Password1!" });
 
     expect(apiClientMock.post).toHaveBeenCalledWith("/api/login", {
       username: "alice",
       password: "Password1!",
     });
+    expect(result).toEqual(expected);
   });
 
   it("calls get profile endpoint with auth", async () => {
-    apiClientMock.get.mockResolvedValueOnce({ success: true });
+    const expected = { success: true };
+    apiClientMock.get.mockResolvedValueOnce(expected);
 
-    await getProfile();
+    const result = await getProfile();
 
     expect(apiClientMock.get).toHaveBeenCalledWith("/api/profile", true);
+    expect(result).toEqual(expected);
   });
 
   it("calls delete profile endpoint with auth", async () => {
-    apiClientMock.delete.mockResolvedValueOnce({ success: true });
+    const expected = { success: true };
+    apiClientMock.delete.mockResolvedValueOnce(expected);
 
-    await deleteAccount();
+    const result = await deleteAccount();
 
     expect(apiClientMock.delete).toHaveBeenCalledWith("/api/profile", true);
+    expect(result).toEqual(expected);
   });
 });

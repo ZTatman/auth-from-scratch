@@ -114,6 +114,7 @@ vi.mock("../AuthFlowPanel", () => ({
     onClear: () => void;
   }) => (
     <div>
+      {/* Tests in this file drive a single flow at a time, so only the first flow is surfaced. */}
       <div data-testid="flow-count">{flows.length}</div>
       <div data-testid="active-flow">{activeFlowId ?? "none"}</div>
       <div data-testid="flow-status">{flows[0]?.status ?? "none"}</div>
@@ -126,6 +127,7 @@ vi.mock("../AuthFlowPanel", () => ({
 }));
 
 async function advanceFlow(ms = 2600): Promise<void> {
+  // 2600ms covers the sequence of 400ms animation delays used across flow steps.
   await act(async () => {
     await vi.advanceTimersByTimeAsync(ms);
   });

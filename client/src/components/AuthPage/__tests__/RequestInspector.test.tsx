@@ -31,10 +31,10 @@ describe("RequestInspector", () => {
       />,
     );
 
-    expect(screen.getByText("POST")).toBeTruthy();
-    expect(screen.getByText("/api/login")).toBeTruthy();
-    expect(screen.getByText("Response Body:")).toBeTruthy();
-    expect(screen.getByText(/\[truncated\]/)).toBeTruthy();
-    expect(screen.getByText(/What's happening:/)).toBeTruthy();
+    expect(screen.queryByText("POST")).not.toBeNull();
+    expect(screen.queryByText("/api/login")).not.toBeNull();
+    expect(screen.queryByText("Response Body:")).not.toBeNull();
+    expect(screen.queryByText(/\[truncated\]/)).not.toBeNull();
+    expect(screen.queryByText(/What's happening:/)).not.toBeNull();
   });
 });

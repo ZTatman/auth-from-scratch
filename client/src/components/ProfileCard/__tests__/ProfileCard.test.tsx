@@ -45,7 +45,7 @@ describe("ProfileCard", () => {
       />,
     );
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Delete Account" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Delete Account" }));
 
     expect(screen.getByRole("dialog")).toBeTruthy();
 

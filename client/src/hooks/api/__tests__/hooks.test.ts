@@ -12,6 +12,7 @@ const {
   deleteAccountMock,
   userLoginMock,
 } = vi.hoisted(() => ({
+  // Return options directly so hook tests can assert mutation/query configuration.
   useMutationMock: vi.fn((options) => options),
   useQueryMock: vi.fn((options) => options),
   loginApiMock: vi.fn(),

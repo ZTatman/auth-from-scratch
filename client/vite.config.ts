@@ -46,9 +46,9 @@ export default defineConfig({
         "src/components/ui/**",
       ],
       thresholds: {
-        lines: 35,
-        functions: 55,
-        statements: 35,
+        lines: 75,
+        functions: 75,
+        statements: 75,
         branches: 75,
       },
     },

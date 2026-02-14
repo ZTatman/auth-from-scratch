@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { installLocalStorageMock } from "../../test-utils/mocks";
 import { ApiClient } from "../api-client";
 
 interface MockResponseInit {
@@ -26,38 +27,19 @@ function createMockResponse(init: MockResponseInit): Response {
   } as unknown as Response;
 }
 
-function installLocalStorageMock(): void {
-  const store = new Map<string, string>();
-  const localStorageMock: Pick<
-    Storage,
-    "getItem" | "setItem" | "removeItem" | "clear"
-  > = {
-    getItem: (key: string) => store.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      store.set(key, value);
-    },
-    removeItem: (key: string) => {
-      store.delete(key);
-    },
-    clear: () => {
-      store.clear();
-    },
-  };
-
-  Object.defineProperty(window, "localStorage", {
-    value: localStorageMock,
-    configurable: true,
-  });
-}
-
 describe("ApiClient", () => {
   const fetchMock = vi.fn();
+  let restoreLocalStorage: (() => void) | undefined;
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("fetch", fetchMock);
-    installLocalStorageMock();
+    restoreLocalStorage = installLocalStorageMock();
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    restoreLocalStorage?.();
   });
 
   it("returns authentication required when includeAuth is true and token is missing", async () => {

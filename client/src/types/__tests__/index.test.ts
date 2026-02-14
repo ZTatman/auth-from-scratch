@@ -4,7 +4,7 @@ import { createLoginSteps, createRegisterSteps } from "../index";
 
 describe("types barrel exports", () => {
   it("re-exports auth-flow helpers", () => {
-    expect(createLoginSteps().length).toBeGreaterThan(0);
-    expect(createRegisterSteps().length).toBeGreaterThan(0);
+    expect(typeof createLoginSteps).toBe("function");
+    expect(typeof createRegisterSteps).toBe("function");
   });
 });

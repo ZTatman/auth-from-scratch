@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { installClipboardMock } from "../../../test-utils/mocks";
 import { AuthForm } from "../AuthForm";
 
 const { toastErrorMock } = vi.hoisted(() => ({
@@ -15,20 +16,18 @@ vi.mock("sonner", () => ({
   },
 }));
 
-function installClipboard(writeText: (text: string) => Promise<void>): void {
-  Object.defineProperty(navigator, "clipboard", {
-    value: { writeText },
-    configurable: true,
-  });
-}
-
 describe("AuthForm", () => {
+  let restoreClipboard: (() => void) | undefined;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    installClipboard(vi.fn().mockResolvedValue(undefined));
+    restoreClipboard = installClipboardMock(
+      vi.fn().mockResolvedValue(undefined),
+    );
   });
 
   afterEach(() => {
+    restoreClipboard?.();
     cleanup();
   });
 

@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { installClipboardMock } from "../../../test-utils/mocks";
 import { JWTDecoder } from "../JWTDecoder";
 
 const { toastSuccessMock, toastErrorMock } = vi.hoisted(() => ({
@@ -22,20 +23,18 @@ function createToken(payload: Record<string, unknown>): string {
   return `${header}.${body}.signature`;
 }
 
-function installClipboard(writeText: (text: string) => Promise<void>): void {
-  Object.defineProperty(navigator, "clipboard", {
-    value: { writeText },
-    configurable: true,
-  });
-}
-
 describe("JWTDecoder", () => {
+  let restoreClipboard: (() => void) | undefined;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    installClipboard(vi.fn().mockResolvedValue(undefined));
+    restoreClipboard = installClipboardMock(
+      vi.fn().mockResolvedValue(undefined),
+    );
   });
 
   afterEach(() => {
+    restoreClipboard?.();
     cleanup();
   });
 
@@ -76,7 +75,10 @@ describe("JWTDecoder", () => {
 
   it("handles clipboard failure during copy", async () => {
     const token = createToken({ sub: "user-2" });
-    installClipboard(vi.fn().mockRejectedValue(new Error("copy failed")));
+    restoreClipboard?.();
+    restoreClipboard = installClipboardMock(
+      vi.fn().mockRejectedValue(new Error("copy failed")),
+    );
 
     render(<JWTDecoder />);
 
