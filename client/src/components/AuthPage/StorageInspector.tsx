@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,39 +8,44 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { AUTH_STORAGE_EVENT, getToken } from "../../utils/user";
 
 const AUTH_TOKEN_KEY = "auth_token";
+
+function subscribeToAuthStorage(onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handler = () => onStoreChange();
+  window.addEventListener("storage", handler);
+  window.addEventListener(AUTH_STORAGE_EVENT, handler);
+
+  return () => {
+    window.removeEventListener("storage", handler);
+    window.removeEventListener(AUTH_STORAGE_EVENT, handler);
+  };
+}
+
+function getAuthTokenSnapshot(): string | null {
+  return getToken();
+}
+
+function getAuthTokenServerSnapshot(): string | null {
+  return null;
+}
 
 /**
  * Displays information about where the auth token is stored
  * and provides educational context about storage options.
  */
 export function StorageInspector() {
-  const [storedToken, setStoredToken] = useState<string | null>(null);
+  const storedToken = useSyncExternalStore(
+    subscribeToAuthStorage,
+    getAuthTokenSnapshot,
+    getAuthTokenServerSnapshot,
+  );
   const [copied, setCopied] = useState(false);
-
-  // Read token from localStorage
-  useEffect(() => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    setStoredToken(token);
-
-    // Listen for storage changes
-    const handleStorageChange = () => {
-      setStoredToken(localStorage.getItem(AUTH_TOKEN_KEY));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    // Also poll periodically since storage events don't fire in the same tab
-    const interval = setInterval(() => {
-      setStoredToken(localStorage.getItem(AUTH_TOKEN_KEY));
-    }, 1000);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
 
   const handleCopy = async () => {
     if (storedToken) {

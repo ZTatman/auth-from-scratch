@@ -8,6 +8,7 @@
     "dev": "tsx watch server.ts",
     "build": "tsc",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
+    "test": "vitest",
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
@@ -33,6 +34,7 @@
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",
     "prisma": "^7.3.0",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "vitest": "^3.2.4"
   }
 }

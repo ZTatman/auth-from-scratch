@@ -9,8 +9,8 @@ import { deleteAccount, getProfile } from "../../api/profile";
  */
 export function useGetProfile(authToken?: string) {
   return useQuery({
-    queryKey: ["profile"],
-    queryFn: getProfile,
+    queryKey: ["profile", authToken],
+    queryFn: () => getProfile(),
     enabled: !!authToken,
     staleTime: 5 * 60 * 1000,
     retry: 1,
