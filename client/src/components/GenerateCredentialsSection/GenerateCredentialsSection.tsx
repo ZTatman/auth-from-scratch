@@ -146,15 +146,17 @@ export function GenerateCredentialsSection({
 
   return (
     <div className="space-y-3">
-      <Button
-        type="button"
-        variant="link"
-        size="sm"
-        onClick={generateRandomCredentials}
-        className="text-primary hover:text-primary/80 h-auto px-0"
-      >
-        Generate random credentials
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          onClick={generateRandomCredentials}
+          className="text-primary hover:text-primary/80 h-auto px-0"
+        >
+          Generate random credentials
+        </Button>
+      </div>
       {generatedCredentials && (
         <div className="bg-muted flex items-start justify-between gap-3 rounded-md p-3 text-sm shadow-sm">
           <div className="flex-1">
@@ -167,9 +169,6 @@ export function GenerateCredentialsSection({
               {generatedCredentials.password}
             </p>
           </div>
-          {/* <CopyButton
-            textToCopy={`Username: ${generatedCredentials.username}\nPassword: ${generatedCredentials.password}`}
-          /> */}
           <Button
             variant="link"
             size="sm"

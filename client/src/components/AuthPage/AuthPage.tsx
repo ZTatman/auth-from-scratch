@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 // Types
 import type { LoginResponse, RegisterResponse } from "@app/shared-types";
-import type { ActivityLogEntry, AuthFlowEntry, AuthStep } from "../../types";
+import type { AuthFlowEntry, AuthStep } from "../../types";
 import type { LoginFormData, RegisterFormData } from "@app/shared-types";
 import {
   createLoginSteps,
@@ -45,32 +45,6 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
- * Create an activity log entry from an API response (for backwards compatibility).
- */
-function createLogEntry(
-  result: LoginResponse | RegisterResponse,
-  type: "login" | "register",
-): ActivityLogEntry {
-  if (result.success) {
-    return {
-      timestamp: new Date().toISOString(),
-      status: "success",
-      type,
-      message: result.message,
-      user: result.data.user,
-    };
-  } else {
-    return {
-      timestamp: new Date().toISOString(),
-      status: "error",
-      type,
-      message: result.message,
-      ...(result.requirement && { requirement: result.requirement }),
-    };
-  }
-}
-
-/**
  * Redact sensitive token data from API responses before storing in UI state.
  *
  * @param result - Login or register API response
@@ -90,21 +64,13 @@ function redactTokenFromResponse(
 }
 
 /**
- * Pending login credentials after successful auth flow.
- * User must click "Continue" to complete the login.
- */
-
-/**
  * AuthPage component with split-screen layout.
  *
  * Left panel: Login/Register form
  * Right panel: Authentication flow visualization with step-by-step walkthrough
  */
 export function AuthPage() {
-  // Legacy activity log for backward compatibility (used by AuthForm for validation errors)
-  const [, setActivityLog] = useState<ActivityLogEntry[]>([]);
-
-  // New auth flow entries for enhanced visualization
+  // Auth flow entries for enhanced visualization
   const [authFlows, setAuthFlows] = useState<AuthFlowEntry[]>([]);
 
   // Currently active flow (for step animation)
@@ -383,9 +349,6 @@ export function AuthPage() {
         message: result.message,
       });
 
-      // Also update legacy activity log
-      setActivityLog((prev) => [...prev, createLogEntry(result, "login")]);
-
       // Handle successful login
       if (result.success) {
         if (result.data.token) {
@@ -405,16 +368,6 @@ export function AuthPage() {
       });
 
       toast.error(error instanceof Error ? error.message : "Login failed");
-
-      setActivityLog((prev) => [
-        ...prev,
-        {
-          timestamp: new Date().toISOString(),
-          status: "error",
-          type: "login",
-          message: error instanceof Error ? error.message : "Login failed",
-        },
-      ]);
 
       return false;
     } finally {
@@ -469,8 +422,6 @@ export function AuthPage() {
       } else {
         toast.error(result.message);
       }
-
-      setActivityLog((prev) => [...prev, createLogEntry(result, "register")]);
     } catch (error) {
       updateFlow(flowId, {
         status: "error",
@@ -480,17 +431,6 @@ export function AuthPage() {
       toast.error(
         error instanceof Error ? error.message : "Registration failed",
       );
-
-      setActivityLog((prev) => [
-        ...prev,
-        {
-          timestamp: new Date().toISOString(),
-          status: "error",
-          type: "register",
-          message:
-            error instanceof Error ? error.message : "Registration failed",
-        },
-      ]);
     } finally {
       setActiveFlowId(null);
     }
@@ -501,7 +441,6 @@ export function AuthPage() {
    */
   const handleClearFlows = () => {
     setAuthFlows([]);
-    setActivityLog([]);
   };
 
   return (
@@ -513,24 +452,20 @@ export function AuthPage() {
       <div className="grid flex-1 grid-cols-1 gap-6 p-6 md:grid-cols-[2fr_3fr]">
         {/* Left Panel - Auth Form */}
         <Card className="border-border/60 h-fit border">
-          <CardHeader>
+          <CardHeader className="text-center">
             <CardTitle className="text-2xl">Authentication</CardTitle>
             <CardDescription>
               Login or create a new account to continue
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AuthForm
-              onLogin={handleLogin}
-              onRegister={handleRegister}
-              setActivityLog={setActivityLog}
-            />
+            <AuthForm onLogin={handleLogin} onRegister={handleRegister} />
           </CardContent>
         </Card>
 
         {/* Right Panel - Auth Flow Visualization */}
         <Card className="border-border/60 flex flex-col border">
-          <CardHeader>
+          <CardHeader className="text-center">
             <CardTitle className="text-2xl">Authentication Flow</CardTitle>
             <CardDescription>
               Watch the authentication process step by step
