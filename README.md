@@ -182,6 +182,7 @@ Server
 - Refresh tokens
 - Logout
 - Remember me
+- Dual-mode auth education: compare JWT in localStorage vs httpOnly cookie sessions with clear production guidance
 
 ## License
 

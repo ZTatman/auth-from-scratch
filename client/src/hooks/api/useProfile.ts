@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { deleteAccount, getProfile } from "../../api/profile";
+import type { DeleteAccountResponse, SafeUser } from "@app/shared-types";
 
 /**
  * Fetch current user's profile with React Query.
@@ -10,7 +11,14 @@ import { deleteAccount, getProfile } from "../../api/profile";
 export function useGetProfile(authToken?: string) {
   return useQuery({
     queryKey: ["profile", authToken],
-    queryFn: () => getProfile(),
+    queryFn: async (): Promise<SafeUser> => {
+      const response = await getProfile();
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    },
     enabled: !!authToken,
     staleTime: 5 * 60 * 1000,
     retry: 1,
@@ -24,6 +32,13 @@ export function useGetProfile(authToken?: string) {
  */
 export function useDeleteAccount() {
   return useMutation({
-    mutationFn: deleteAccount,
+    mutationFn: async (): Promise<DeleteAccountResponse> => {
+      const response = await deleteAccount();
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      return response;
+    },
   });
 }
