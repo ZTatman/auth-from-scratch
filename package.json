@@ -12,7 +12,7 @@
     "build": "concurrently -n \"server,client\" -c \"blue,green\" \"cd server && npm run build\" \"cd client && npm run build\"",
     "format": "cd server && npm run format && cd client && npm run format",
     "test": "npm -w server test && npm -w client test",
-    "test:browser": "npm run -w client test:browser --"
+    "test:browser": "npm -w client run test:browser --"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.15",

@@ -10,6 +10,7 @@ export type UserContextType = {
   setAuthToken: (authToken: string) => void;
   setUser: (user: SafeUser) => void;
   setRole: (role: string) => void;
+  setIsAuthenticated: (isAuthenticated: boolean) => void;
   login: (user: SafeUser, token: string) => void;
   logout: () => void;
 };

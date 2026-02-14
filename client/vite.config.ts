@@ -34,10 +34,5 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     clearMocks: true,
     restoreMocks: true,
-    browser: {
-      enabled: true,
-      name: "chromium",
-      provider: "playwright",
-    },
   },
 });

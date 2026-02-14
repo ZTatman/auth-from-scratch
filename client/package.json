@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
     "test": "vitest",
-    "test:browser": "vitest --browser",
+    "test:browser": "vitest --browser.enabled=true",
     "preview": "vite preview"
   },
   "dependencies": {

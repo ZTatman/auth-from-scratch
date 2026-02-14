@@ -366,7 +366,7 @@ export function AuthFlowsPage(): ReactElement {
 
   const activeVariant = activeStep.variant;
 
-  const lifelineHeight = useMemo(() => {
+  const lifelineHeight = useMemo<number>(() => {
     const lastRowY = getEventRowY(selectedFlow.steps.length - 1);
     return Math.max(
       lastRowY - (PARTICIPANT_TOP_Y + PARTICIPANT_CARD_HEIGHT) + 48,
@@ -374,7 +374,7 @@ export function AuthFlowsPage(): ReactElement {
     );
   }, [selectedFlow.steps.length]);
 
-  const sequenceDiagramHeight = useMemo(() => {
+  const sequenceDiagramHeight = useMemo<number>(() => {
     const lastRowY = getEventRowY(selectedFlow.steps.length - 1);
     return Math.max(lastRowY + 104, 500);
   }, [selectedFlow.steps.length]);
@@ -564,10 +564,17 @@ export function AuthFlowsPage(): ReactElement {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
       const target = event.target as HTMLElement | null;
+      const inInteractiveControl = Boolean(
+        target?.closest("button, a, [role='button']"),
+      );
       if (
         target?.tagName === "INPUT" ||
         target?.tagName === "TEXTAREA" ||
         target?.tagName === "SELECT" ||
+        target?.tagName === "BUTTON" ||
+        target?.tagName === "A" ||
+        target?.getAttribute("role") === "button" ||
+        inInteractiveControl ||
         target?.isContentEditable
       ) {
         return;
@@ -916,12 +923,10 @@ export function AuthFlowsPage(): ReactElement {
                               <p className="mt-1">{activeStep.securityNote}</p>
                             </div>
                           ) : (
-                            <div className="rounded-xl border border-transparent bg-transparent px-4 py-3 text-xs text-transparent">
-                              <p className="font-semibold uppercase tracking-wide">
-                                Security Note
-                              </p>
-                              <p className="mt-1">No security note for this step.</p>
-                            </div>
+                            <div
+                              aria-hidden="true"
+                              className="min-h-[3.75rem] rounded-xl border border-transparent bg-transparent px-4 py-3"
+                            />
                           )}
                         </div>
 
@@ -967,8 +972,8 @@ export function AuthFlowsPage(): ReactElement {
                       {debugEvents.length === 0 ? (
                         <li>No playback events captured yet.</li>
                       ) : (
-                        debugEvents.map((event) => (
-                          <li key={`${event.timestamp}-${event.type}`}>
+                        debugEvents.map((event, index) => (
+                          <li key={`${event.timestamp}-${event.type}-${event.stepIndex}-${index}`}>
                             [{event.type}] step {event.stepIndex + 1}
                           </li>
                         ))
