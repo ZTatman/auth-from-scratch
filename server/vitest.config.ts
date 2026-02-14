@@ -6,5 +6,24 @@ export default defineConfig({
     include: ["**/*.{test,spec}.ts"],
     clearMocks: true,
     restoreMocks: true,
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "json-summary"],
+      include: ["**/*.ts"],
+      exclude: [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "**/__tests__/**",
+        "generated/**",
+        "prisma/**",
+        "**/types/**",
+      ],
+      thresholds: {
+        lines: 15,
+        functions: 15,
+        statements: 15,
+        branches: 10,
+      },
+    },
   },
 });
