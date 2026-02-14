@@ -9,6 +9,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text-summary", "json-summary"],
+      reportsDirectory: "./coverage",
       include: ["**/*.ts"],
       exclude: [
         "**/*.test.ts",
