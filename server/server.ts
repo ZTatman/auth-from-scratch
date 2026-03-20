@@ -5,6 +5,8 @@ import { authRoutes, profileRoutes } from "./routes";
 
 // Constants
 const app: Application = express();
+const isProduction = process.env.NODE_ENV === "production";
+
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3001;
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
@@ -27,9 +29,11 @@ const corsOptions: CorsOptions = {
 };
 
 // Middleware
-app.disable("x-powered-by");
+app.disable("x-powered-by"); // Remove server framework leads like X-Powered-By: Express in response headers
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "10kb" })); // Cap json accepted payloads at 10kb, prevents DOS or json bombs
+
+// ---------- Security headers ----------
 app.use((_req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
@@ -40,7 +44,9 @@ app.use((_req, res, next) => {
   res.setHeader("Referrer-Policy", "no-referrer");
   res.setHeader("Cross-Origin-Resource-Policy", "same-site");
 
-  if (process.env.NODE_ENV === "production") {
+  // HSTS: Tell browsers to always use HTTPS for this domain.
+  // Only sent in production so local dev (http://localhost) isn't affected.
+  if (isProduction) {
     res.setHeader(
       "Strict-Transport-Security",
       "max-age=31536000; includeSubDomains; preload",
@@ -48,6 +54,28 @@ app.use((_req, res, next) => {
   }
 
   next();
+});
+
+// ---------- HTTPS redirect (production only) ----------
+// Railway terminates TLS at its edge and forwards HTTP internally,
+// setting the X-Forwarded-Proto header. If a request somehow arrives
+// without HTTPS (e.g. user types http://), redirect them.
+if (isProduction) {
+  app.use((req, res, next) => {
+    if (req.headers["x-forwarded-proto"] !== "https") {
+      res.redirect(301, `https://${req.hostname}${req.originalUrl}`);
+      return;
+    }
+    next();
+  });
+}
+
+// ---------- Health check ----------
+// Railway (and other platforms) ping this to know your service is alive.
+// A dedicated endpoint is better than relying on "/" because it can also
+// verify downstream dependencies like the database.
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 // API Routes
@@ -59,5 +87,7 @@ app.get("/", (_req, res) => {
 });
 
 app.listen(PORT, (): void => {
-  console.log(`Express server listening at http://localhost:${PORT}`);
+  console.log(
+    `Express server listening at http://localhost:${PORT} [${isProduction ? "production" : "development"}]`,
+  );
 });
