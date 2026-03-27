@@ -42,7 +42,8 @@ app.use(express.json({ limit: "10kb" })); // Cap json accepted payloads at 10kb,
 
 app.use(
   helmet({
-    contentSecurityPolicy: false,
+    // Enable CSP in production (default Helmet policy), keep it disabled in non-production if needed.
+    contentSecurityPolicy: IS_PRODUCTION ? undefined : false,
     strictTransportSecurity: IS_PRODUCTION,
   }),
 );
