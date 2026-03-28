@@ -1,10 +1,19 @@
 import "dotenv/config";
-import express, { Application } from "express";
+import express, {
+  Application,
+  NextFunction,
+  Request,
+  Response,
+} from "express";
 import cors, { type CorsOptions } from "cors";
+import helmet from "helmet";
 import { authRoutes, profileRoutes } from "./routes";
 
 // Constants
 const app: Application = express();
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const PUBLIC_HOST = process.env.PUBLIC_HOST;
+
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3001;
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
@@ -27,27 +36,56 @@ const corsOptions: CorsOptions = {
 };
 
 // Middleware
-app.disable("x-powered-by");
+app.disable("x-powered-by"); // Remove server framework leads like X-Powered-By: Express in response headers
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "10kb" }));
-app.use((_req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; base-uri 'self'; frame-ancestors 'none'",
-  );
-  res.setHeader("Referrer-Policy", "no-referrer");
-  res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+app.use(express.json({ limit: "10kb" })); // Cap json accepted payloads at 10kb, prevents DOS or json bombs
 
-  if (process.env.NODE_ENV === "production") {
-    res.setHeader(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains; preload",
-    );
-  }
+app.use(
+  helmet({
+    // This server primarily returns JSON APIs. CSP is more effective on the app
+    // that serves HTML documents, so we intentionally leave it off here.
+    contentSecurityPolicy: false,
+    strictTransportSecurity: IS_PRODUCTION,
+  }),
+);
 
-  next();
+// ---------- HTTPS redirect (production only) ----------
+// Railway terminates TLS at its edge and forwards HTTP internally,
+// setting the X-Forwarded-Proto header. If a request somehow arrives
+// without HTTPS (e.g. user types http://), redirect them.
+if (IS_PRODUCTION) {
+  /**
+   * Redirect plaintext requests to the canonical HTTPS origin in production.
+   *
+   * @param req - The incoming Express request
+   * @param res - The Express response used for redirects or errors
+   * @param next - The next middleware in the pipeline
+   * @returns `void`
+   */
+  app.use((req: Request, res: Response, next: NextFunction): void => {
+    if (!req.secure) {
+      const host = PUBLIC_HOST ?? req.get("host");
+      if (!host) {
+        res
+          .status(400)
+          .json({ success: false, message: "Missing host header" });
+        return;
+      }
+
+      res.redirect(308, `https://${host}${req.originalUrl}`);
+      return;
+    }
+
+    next();
+  });
+}
+
+// ---------- Health check ----------
+// Railway (and other platforms) ping this to know your service is alive.
+// A dedicated endpoint is better than relying on "/" because it can also
+// verify downstream dependencies like the database.
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 // API Routes
@@ -59,5 +97,7 @@ app.get("/", (_req, res) => {
 });
 
 app.listen(PORT, (): void => {
-  console.log(`Express server listening at http://localhost:${PORT}`);
+  console.log(
+    `Express server listening at http://localhost:${PORT} [${IS_PRODUCTION ? "production" : "development"}]`,
+  );
 });
